@@ -765,6 +765,12 @@ public class PDFProcessorImpl
 				index++;
 			}
 		}
+		
+		long actualTime = stopWatch.getTime();
+		
+		System.out.println("*****************************");
+		System.out.println("STOPWATCH FINISH TIME: "+actualTime);
+		System.out.println("*****************************");
 
 		if (_log.isInfoEnabled()) {
 			long fileVersionId = fileVersion.getFileVersionId();
