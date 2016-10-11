@@ -23,7 +23,6 @@ DDLRecord record = (DDLRecord)request.getAttribute(DDLWebKeys.DYNAMIC_DATA_LISTS
 
 long recordId = BeanParamUtil.getLong(record, request, "recordId");
 
-long groupId = BeanParamUtil.getLong(record, request, "groupId", scopeGroupId);
 long recordSetId = BeanParamUtil.getLong(record, request, "recordSetId");
 
 long formDDMTemplateId = ParamUtil.getLong(request, "formDDMTemplateId");
@@ -101,10 +100,25 @@ else {
 	<portlet:param name="mvcPath" value="/edit_record.jsp" />
 </portlet:actionURL>
 
-<div class="container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />recordPanel">
+<c:if test="<%= record != null %>">
+	<liferay-frontend:management-bar>
+		<liferay-frontend:management-bar-buttons>
+			<liferay-frontend:management-bar-sidenav-toggler-button
+				icon="info-circle"
+				label="info"
+			/>
+		</liferay-frontend:management-bar-buttons>
+	</liferay-frontend:management-bar>
+</c:if>
+
+<div class="closed container-fluid-1280 sidenav-container sidenav-right" id="<portlet:namespace />infoPanelId">
 	<c:if test="<%= recordVersion != null %>">
 		<div class="sidenav-menu-slider">
 			<div class="sidebar sidebar-default sidenav-menu">
+				<div class="sidebar-header">
+					<aui:icon cssClass="icon-monospaced sidenav-close text-default visible-xs-inline-block" image="times" markupView="lexicon" url="javascript:;" />
+				</div>
+
 				<liferay-ui:tabs names="details,versions" refresh="<%= false %>" type="dropdown">
 					<liferay-ui:section>
 						<div class="sidebar-body">
@@ -149,7 +163,7 @@ else {
 		<aui:form action="<%= (record == null) ? addRecordURL : updateRecordURL %>" cssClass="container-fluid-1280" enctype="multipart/form-data" method="post" name="fm">
 			<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 			<aui:input name="recordId" type="hidden" value="<%= recordId %>" />
-			<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
+			<aui:input name="groupId" type="hidden" value="<%= recordSet.getGroupId() %>" />
 			<aui:input name="recordSetId" type="hidden" value="<%= recordSetId %>" />
 			<aui:input name="formDDMTemplateId" type="hidden" value="<%= formDDMTemplateId %>" />
 			<aui:input name="defaultLanguageId" type="hidden" value="<%= defaultLanguageId %>" />
@@ -278,18 +292,6 @@ else {
 			document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = <%= WorkflowConstants.ACTION_PUBLISH %>;
 		}
 	}
-
-	<c:if test="<%= recordVersion != null %>">
-		$('#<portlet:namespace />recordPanel').sideNavigation(
-			{
-				gutter: 15,
-				position: 'right',
-				type: 'relative',
-				typeMobile: 'fixed',
-				width: 320
-			}
-		);
-	</c:if>
 </aui:script>
 
 <%

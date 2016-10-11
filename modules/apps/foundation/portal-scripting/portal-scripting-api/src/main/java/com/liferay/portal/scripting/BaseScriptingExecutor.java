@@ -17,6 +17,7 @@ package com.liferay.portal.scripting;
 import com.liferay.portal.kernel.scripting.ScriptingContainer;
 import com.liferay.portal.kernel.scripting.ScriptingException;
 import com.liferay.portal.kernel.scripting.ScriptingExecutor;
+import com.liferay.portal.kernel.util.AggregateClassLoader;
 import com.liferay.portal.kernel.util.FileUtil;
 
 import java.io.File;
@@ -52,7 +53,7 @@ public abstract class BaseScriptingExecutor implements ScriptingExecutor {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #eval(Set, Map, Set, File)}
+	 * @deprecated As of 1.0.0, replaced by {@link #eval(Set, Map, Set, File)}
 	 */
 	@Deprecated
 	@Override
@@ -66,7 +67,7 @@ public abstract class BaseScriptingExecutor implements ScriptingExecutor {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #eval(Set, Map, Set, String)}
+	 * @deprecated As of 1.0.0, replaced by {@link #eval(Set, Map, Set, String)}
 	 */
 	@Deprecated
 	@Override
@@ -86,7 +87,14 @@ public abstract class BaseScriptingExecutor implements ScriptingExecutor {
 	protected ClassLoader getClassLoader() {
 		Class<?> clazz = getClass();
 
-		return clazz.getClassLoader();
+		ClassLoader classLoader = clazz.getClassLoader();
+
+		Thread currentThread = Thread.currentThread();
+
+		ClassLoader contextClassLoader = currentThread.getContextClassLoader();
+
+		return AggregateClassLoader.getAggregateClassLoader(
+			classLoader, contextClassLoader);
 	}
 
 }

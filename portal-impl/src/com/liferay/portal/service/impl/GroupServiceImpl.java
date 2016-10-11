@@ -75,7 +75,7 @@ import java.util.Set;
  * purposes.
  *
  * @author Brian Wing Shun Chan
- * @see    com.liferay.portal.service.impl.GroupLocalServiceImpl
+ * @see    GroupLocalServiceImpl
  */
 public class GroupServiceImpl extends GroupServiceBaseImpl {
 
@@ -602,7 +602,9 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 
 			if (ArrayUtil.contains(classNames, Group.class.getName())) {
 				for (Group group : userBag.getUserGroups()) {
-					if (group.isActive() && group.isSite()) {
+					if (groupLocalService.isLiveGroupActive(group) &&
+						group.isSite()) {
+
 						if (userSiteGroups.add(group) &&
 							(userSiteGroups.size() == max)) {
 
@@ -619,7 +621,9 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 
 			if (ArrayUtil.contains(classNames, Organization.class.getName())) {
 				for (Group group : userBag.getUserOrgGroups()) {
-					if (group.isActive() && group.isSite()) {
+					if (groupLocalService.isLiveGroupActive(group) &&
+						group.isSite()) {
+
 						if (userSiteGroups.add(group) &&
 							(userSiteGroups.size() == max)) {
 
@@ -1046,10 +1050,10 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 		UnicodeProperties typeSettingsProperties =
 			group.getTypeSettingsProperties();
 
-		for (String stagedPortletId : stagedPortletIds.keySet()) {
+		for (Map.Entry<String, String> entry : stagedPortletIds.entrySet()) {
 			typeSettingsProperties.setProperty(
-				StagingUtil.getStagedPortletId(stagedPortletId),
-				stagedPortletIds.get(stagedPortletId));
+				StagingUtil.getStagedPortletId(entry.getKey()),
+				entry.getValue());
 		}
 
 		groupLocalService.updateGroup(group);

@@ -17,12 +17,32 @@
 		<execute function="AssertClick" locator1="MenuItem#DATA_PROVIDERS" value1="Data Providers" />
 	</command>
 
+	<command name="gotoDeleteField">
+		<execute macro="FormsAdminNavigator#gotoEditField">
+			<var name="fieldName" value="${fieldName}" />
+		</execute>
+
+		<var name="key_fieldName" value="${fieldName}" />
+
+		<execute function="Click" locator1="Form#SIDEBAR_ELLIPSIS" />
+
+		<execute function="Click" locator1="Form#SIDEBAR_MENUITEM_REMOVE_FIELD" />
+	</command>
+
 	<command name="gotoEdit">
 		<var name="key_rowEntry" value="${formName}" />
 
 		<execute function="Click#waitForMenuToggleJSClick" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
 
 		<execute function="AssertClick" locator1="MenuItem#EDIT" value1="Edit" />
+	</command>
+
+	<command name="gotoEditField">
+		<var name="key_fieldName" value="${fieldName}" />
+
+		<execute function="Click" locator1="Form#FIELD_BODY" />
+
+		<execute function="AssertElementPresent" locator1="Form#SIDEBAR_BASIC_TAB" />
 	</command>
 
 	<command name="gotoEditFormByName">

@@ -148,9 +148,7 @@
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
-		<execute macro="Site#addMemberCP">
-			<var name="siteName" value="${siteName1}" />
-			<var name="siteScopeName" value="${siteName1}" />
+		<execute macro="Site#assignUserAsMemberCP">
 			<var name="userFirstName" value="${userFirstName1}" />
 			<var name="userLastName" value="${userLastName1}" />
 			<var name="userMiddleName" value="${userMiddleName1}" />
@@ -165,9 +163,7 @@
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
-		<execute macro="Site#addMemberCP">
-			<var name="siteName" value="${siteName2}" />
-			<var name="siteScopeName" value="${siteName2}" />
+		<execute macro="Site#assignUserAsMemberCP">
 			<var name="userFirstName" value="${userFirstName2}" />
 			<var name="userLastName" value="${userLastName2}" />
 			<var name="userMiddleName" value="${userMiddleName2}" />
@@ -182,9 +178,7 @@
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
-		<execute macro="Site#addMemberCP">
-			<var name="siteName" value="${siteName3}" />
-			<var name="siteScopeName" value="${siteName3}" />
+		<execute macro="Site#assignUserAsMemberCP">
 			<var name="userFirstName" value="${userFirstName3}" />
 			<var name="userLastName" value="${userLastName3}" />
 			<var name="userMiddleName" value="${userMiddleName3}" />
@@ -199,9 +193,7 @@
 			<var name="portlet" value="Site Memberships" />
 		</execute>
 
-		<execute macro="Site#addMemberCP">
-			<var name="siteName" value="${siteName4}" />
-			<var name="siteScopeName" value="${siteName4}" />
+		<execute macro="Site#assignUserAsMemberCP">
 			<var name="userFirstName" value="${userFirstName4}" />
 			<var name="userLastName" value="${userLastName4}" />
 			<var name="userMiddleName" value="${userMiddleName4}" />
@@ -230,7 +222,7 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName1}" />
 		</execute>
 
@@ -262,7 +254,7 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName2}" />
 		</execute>
 
@@ -294,7 +286,7 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName3}" />
 		</execute>
 
@@ -326,7 +318,7 @@
 			<var name="soPage" value="true" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName4}" />
 		</execute>
 
@@ -354,7 +346,7 @@
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle3}" />
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle4}" />
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName1}" />
 		</execute>
 
@@ -406,7 +398,7 @@
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle3}" />
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle4}" />
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName2}" />
 		</execute>
 
@@ -458,7 +450,7 @@
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle2}" />
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle4}" />
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName3}" />
 		</execute>
 
@@ -511,7 +503,7 @@
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle2}" />
 		<execute function="AssertTextNotPresent" value1="${dmDocumentTitle3}" />
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="${dmFolderName4}" />
 		</execute>
 

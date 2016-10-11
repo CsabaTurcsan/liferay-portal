@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.File;
@@ -49,7 +50,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @author Raymond Augé
  * @author Levente Hudák
- * @see    com.liferay.journal.service.impl.JournalArticleLocalServiceImpl
+ * @see    JournalArticleLocalServiceImpl
  */
 public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 
@@ -569,7 +570,7 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 	 * @param      languageId the primary key of the language translation to get
 	 * @param      themeDisplay the theme display
 	 * @return     the matching web content
-	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 * @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	 *             String, double, String, PortletRequestModel, ThemeDisplay)}
 	 */
 	@Deprecated
@@ -621,7 +622,7 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 	 * @param      languageId the primary key of the language translation to get
 	 * @param      themeDisplay the theme display
 	 * @return     the matching web content
-	 * @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	 * @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	 *             String, String, PortletRequestModel, ThemeDisplay)}
 	 */
 	@Deprecated
@@ -1289,7 +1290,8 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 
 	@Override
 	public List<JournalArticle> getLayoutArticles(long groupId) {
-		return journalArticlePersistence.filterFindByG_NotL(groupId, null);
+		return journalArticlePersistence.filterFindByG_NotL(
+			groupId, new String[] {null, StringPool.BLANK});
 	}
 
 	/**
@@ -1300,7 +1302,7 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 	 * @param      articleId the primary key of the web content article
 	 * @param      newFolderId the primary key of the web content article's new
 	 *             folder
-	 * @deprecated As of 7.0.0, replaced by {@link #moveArticle(long, String,
+	 * @deprecated As of 4.0.0, replaced by {@link #moveArticle(long, String,
 	 *             long, ServiceContext)}
 	 */
 	@Deprecated
@@ -1338,16 +1340,14 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 			getPermissionChecker(), groupId, newFolderId,
 			ActionKeys.ADD_ARTICLE);
 
-		List<JournalArticle> articles = journalArticlePersistence.findByG_A(
+		JournalArticle article = journalArticleLocalService.getArticle(
 			groupId, articleId);
 
-		for (JournalArticle article : articles) {
-			JournalArticlePermission.check(
-				getPermissionChecker(), article, ActionKeys.UPDATE);
+		JournalArticlePermission.check(
+			getPermissionChecker(), article, ActionKeys.UPDATE);
 
-			journalArticleLocalService.moveArticle(
-				groupId, articleId, newFolderId, serviceContext);
-		}
+		journalArticleLocalService.moveArticle(
+			groupId, articleId, newFolderId, serviceContext);
 	}
 
 	/**

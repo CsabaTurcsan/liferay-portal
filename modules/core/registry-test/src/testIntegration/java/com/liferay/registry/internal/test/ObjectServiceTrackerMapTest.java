@@ -309,7 +309,7 @@ public class ObjectServiceTrackerMapTest {
 
 		try (ServiceTrackerMap<String, TrackedTwo> serviceTrackerMap =
 				ServiceTrackerCollections.openSingleValueMap(
-					TrackedOne.class, ("(target=*)"),
+					TrackedOne.class, "(target=*)",
 					new ServiceReferenceMapper<String, TrackedOne>() {
 
 						@Override
@@ -471,8 +471,7 @@ public class ObjectServiceTrackerMapTest {
 							Emitter<TrackedOne> emitter) {
 						}
 
-					}
-				)) {
+					})) {
 
 			ServiceRegistration<TrackedOne> serviceRegistration1 =
 				registerService(new TrackedOne());

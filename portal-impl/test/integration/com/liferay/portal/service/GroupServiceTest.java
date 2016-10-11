@@ -15,11 +15,10 @@
 package com.liferay.portal.service;
 
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
-import com.liferay.blogs.kernel.model.BlogsEntry;
-import com.liferay.blogs.kernel.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.GroupParentException;
 import com.liferay.portal.kernel.exception.LocaleException;
+import com.liferay.portal.kernel.exception.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -31,6 +30,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -192,6 +192,60 @@ public class GroupServiceTest {
 			true);
 	}
 
+	@Test(expected = NoSuchResourcePermissionException.class)
+	public void testDeleteGroupWithStagingGroupRemovesStagingResource()
+		throws Exception {
+
+		Group group = GroupTestUtil.addGroup();
+
+		GroupTestUtil.enableLocalStaging(group);
+
+		Assert.assertTrue(group.hasStagingGroup());
+
+		Group stagingGroup = group.getStagingGroup();
+
+		GroupServiceUtil.deleteGroup(group.getGroupId());
+
+		Role role = RoleLocalServiceUtil.getRole(
+			stagingGroup.getCompanyId(), RoleConstants.OWNER);
+
+		ResourcePermissionLocalServiceUtil.getResourcePermission(
+			stagingGroup.getCompanyId(), Group.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(stagingGroup.getGroupId()), role.getRoleId());
+	}
+
+	@Test
+	public void testDeleteGroupWithStagingGroupRemovesStagingUserGroupRoles()
+		throws Exception {
+
+		Group group = GroupTestUtil.addGroup();
+
+		GroupTestUtil.enableLocalStaging(group);
+
+		Assert.assertTrue(group.hasStagingGroup());
+
+		Group stagingGroup = group.getStagingGroup();
+
+		List<UserGroupRole> stagingUserGroupRoles =
+			UserGroupRoleLocalServiceUtil.getUserGroupRolesByGroup(
+				stagingGroup.getGroupId());
+
+		int stagingUserGroupRolesCount = stagingUserGroupRoles.size();
+
+		Assert.assertEquals(1, stagingUserGroupRolesCount);
+
+		GroupServiceUtil.deleteGroup(group.getGroupId());
+
+		stagingUserGroupRoles =
+			UserGroupRoleLocalServiceUtil.getUserGroupRolesByGroup(
+				stagingGroup.getGroupId());
+
+		stagingUserGroupRolesCount = stagingUserGroupRoles.size();
+
+		Assert.assertEquals(0, stagingUserGroupRolesCount);
+	}
+
 	@Test
 	public void testDeleteOrganizationSiteOnlyRemovesSiteRoles()
 		throws Exception {
@@ -242,24 +296,13 @@ public class GroupServiceTest {
 			initialTagsCount + 1,
 			AssetTagLocalServiceUtil.getGroupTagsCount(group.getGroupId()));
 
-		User user = UserTestUtil.addUser(group.getGroupId());
-
-		BlogsEntry blogsEntry = BlogsEntryLocalServiceUtil.addEntry(
-			user.getUserId(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), serviceContext);
-
-		Assert.assertNotNull(
-			BlogsEntryLocalServiceUtil.fetchBlogsEntry(
-				blogsEntry.getEntryId()));
+		UserTestUtil.addUser(group.getGroupId());
 
 		GroupLocalServiceUtil.deleteGroup(group.getGroupId());
 
 		Assert.assertEquals(
 			initialTagsCount,
 			AssetTagLocalServiceUtil.getGroupTagsCount(group.getGroupId()));
-		Assert.assertNull(
-			BlogsEntryLocalServiceUtil.fetchBlogsEntry(
-				blogsEntry.getEntryId()));
 	}
 
 	@Test
@@ -365,6 +408,7 @@ public class GroupServiceTest {
 
 		Assert.assertEquals(1, groups.size());
 		Assert.assertEquals(group, groups.get(0));
+
 		Assert.assertEquals(
 			1, GroupLocalServiceUtil.getRoleGroupsCount(roleId));
 
@@ -384,7 +428,7 @@ public class GroupServiceTest {
 		Assert.assertEquals(
 			1,
 			GroupLocalServiceUtil.searchCount(
-				TestPropsValues.getCompanyId(), null, "liferay", groupParams));
+				TestPropsValues.getCompanyId(), null, "liferay%", groupParams));
 	}
 
 	@Test
@@ -397,7 +441,7 @@ public class GroupServiceTest {
 		Assert.assertEquals(
 			1,
 			GroupLocalServiceUtil.searchCount(
-				TestPropsValues.getCompanyId(), null, "Liferay", groupParams));
+				TestPropsValues.getCompanyId(), null, "Liferay%", groupParams));
 	}
 
 	@Test

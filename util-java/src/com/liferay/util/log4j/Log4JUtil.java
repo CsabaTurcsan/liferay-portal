@@ -171,7 +171,9 @@ public class Log4JUtil {
 		String serverId, String liferayHome, ClassLoader classLoader,
 		LogFactory logFactory, Map<String, String> customLogSettings) {
 
-		ServerDetector.init(serverId);
+		System.setProperty(
+			ServerDetector.SYSTEM_PROPERTY_KEY_SERVER_DETECTOR_SERVER_ID,
+			serverId);
 
 		_liferayHome = liferayHome;
 
@@ -184,10 +186,8 @@ public class Log4JUtil {
 			_logger.error(e, e);
 		}
 
-		for (String name : customLogSettings.keySet()) {
-			String priority = customLogSettings.get(name);
-
-			setLevel(name, priority, false);
+		for (Map.Entry<String, String> entry : customLogSettings.entrySet()) {
+			setLevel(entry.getKey(), entry.getValue(), false);
 		}
 	}
 

@@ -100,6 +100,11 @@ public class GroupLocalServiceUtil {
 		return getService().hasUserGroups(userId);
 	}
 
+	public static boolean isLiveGroupActive(
+		com.liferay.portal.kernel.model.Group group) {
+		return getService().isLiveGroupActive(group);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery() {
 		return getService().getActionableDynamicQuery();
 	}
@@ -159,7 +164,7 @@ public class GroupLocalServiceUtil {
 		long liveGroupId, java.lang.String name, java.lang.String description,
 		int type, boolean manualMembership, int membershipRestriction,
 		java.lang.String friendlyURL, boolean site, boolean active,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addGroup(userId, parentGroupId, className, classPK,
@@ -174,7 +179,7 @@ public class GroupLocalServiceUtil {
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		int type, boolean manualMembership, int membershipRestriction,
 		java.lang.String friendlyURL, boolean site, boolean active,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addGroup(userId, parentGroupId, className, classPK,
@@ -189,8 +194,7 @@ public class GroupLocalServiceUtil {
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		int type, boolean manualMembership, int membershipRestriction,
 		java.lang.String friendlyURL, boolean site, boolean inheritContent,
-		boolean active,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		boolean active, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addGroup(userId, parentGroupId, className, classPK,
@@ -597,8 +601,7 @@ public class GroupLocalServiceUtil {
 		long groupId, long parentGroupId, java.lang.String name,
 		java.lang.String description, int type, boolean manualMembership,
 		int membershipRestriction, java.lang.String friendlyURL,
-		boolean inheritContent, boolean active,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		boolean inheritContent, boolean active, ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateGroup(groupId, parentGroupId, name, description,
@@ -612,7 +615,7 @@ public class GroupLocalServiceUtil {
 		java.util.Map<java.util.Locale, java.lang.String> descriptionMap,
 		int type, boolean manualMembership, int membershipRestriction,
 		java.lang.String friendlyURL, boolean inheritContent, boolean active,
-		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateGroup(groupId, parentGroupId, nameMap,
@@ -2244,8 +2247,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void addOrganizationGroups(long organizationId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().addOrganizationGroups(organizationId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().addOrganizationGroups(organizationId, groups);
 	}
 
 	public static void addOrganizationGroups(long organizationId,
@@ -2263,8 +2266,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void addRoleGroups(long roleId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().addRoleGroups(roleId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().addRoleGroups(roleId, groups);
 	}
 
 	public static void addRoleGroups(long roleId, long[] groupIds) {
@@ -2290,8 +2293,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void addUserGroupGroups(long userGroupId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().addUserGroupGroups(userGroupId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().addUserGroupGroups(userGroupId, groups);
 	}
 
 	public static void addUserGroupGroups(long userGroupId, long[] groupIds) {
@@ -2299,8 +2302,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void addUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().addUserGroups(userId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().addUserGroups(userId, groups);
 	}
 
 	public static void addUserGroups(long userId, long[] groupIds) {
@@ -2358,8 +2361,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void deleteOrganizationGroups(long organizationId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().deleteOrganizationGroups(organizationId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().deleteOrganizationGroups(organizationId, groups);
 	}
 
 	public static void deleteOrganizationGroups(long organizationId,
@@ -2377,8 +2380,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void deleteRoleGroups(long roleId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().deleteRoleGroups(roleId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().deleteRoleGroups(roleId, groups);
 	}
 
 	public static void deleteRoleGroups(long roleId, long[] groupIds) {
@@ -2404,8 +2407,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void deleteUserGroupGroups(long userGroupId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().deleteUserGroupGroups(userGroupId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().deleteUserGroupGroups(userGroupId, groups);
 	}
 
 	public static void deleteUserGroupGroups(long userGroupId, long[] groupIds) {
@@ -2413,8 +2416,8 @@ public class GroupLocalServiceUtil {
 	}
 
 	public static void deleteUserGroups(long userId,
-		java.util.List<com.liferay.portal.kernel.model.Group> Groups) {
-		getService().deleteUserGroups(userId, Groups);
+		java.util.List<com.liferay.portal.kernel.model.Group> groups) {
+		getService().deleteUserGroups(userId, groups);
 	}
 
 	public static void deleteUserGroups(long userId, long[] groupIds) {

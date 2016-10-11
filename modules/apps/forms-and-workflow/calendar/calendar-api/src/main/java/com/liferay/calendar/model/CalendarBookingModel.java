@@ -277,6 +277,20 @@ public interface CalendarBookingModel extends BaseModel<CalendarBooking>,
 	public void setParentCalendarBookingId(long parentCalendarBookingId);
 
 	/**
+	 * Returns the recurring calendar booking ID of this calendar booking.
+	 *
+	 * @return the recurring calendar booking ID of this calendar booking
+	 */
+	public long getRecurringCalendarBookingId();
+
+	/**
+	 * Sets the recurring calendar booking ID of this calendar booking.
+	 *
+	 * @param recurringCalendarBookingId the recurring calendar booking ID of this calendar booking
+	 */
+	public void setRecurringCalendarBookingId(long recurringCalendarBookingId);
+
+	/**
 	 * Returns the v event uid of this calendar booking.
 	 *
 	 * @return the v event uid of this calendar booking
@@ -885,20 +899,19 @@ public interface CalendarBookingModel extends BaseModel<CalendarBooking>,
 	public Object clone();
 
 	@Override
-	public int compareTo(
-		com.liferay.calendar.model.CalendarBooking calendarBooking);
+	public int compareTo(CalendarBooking calendarBooking);
 
 	@Override
 	public int hashCode();
 
 	@Override
-	public CacheModel<com.liferay.calendar.model.CalendarBooking> toCacheModel();
+	public CacheModel<CalendarBooking> toCacheModel();
 
 	@Override
-	public com.liferay.calendar.model.CalendarBooking toEscapedModel();
+	public CalendarBooking toEscapedModel();
 
 	@Override
-	public com.liferay.calendar.model.CalendarBooking toUnescapedModel();
+	public CalendarBooking toUnescapedModel();
 
 	@Override
 	public String toString();

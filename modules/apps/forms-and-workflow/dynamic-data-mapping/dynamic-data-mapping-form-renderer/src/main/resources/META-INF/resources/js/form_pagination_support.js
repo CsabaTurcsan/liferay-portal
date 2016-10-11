@@ -21,16 +21,24 @@ AUI.add(
 				return pagination.get('page');
 			},
 
+			getCurrentPageNode: function() {
+				var instance = this;
+
+				return instance.getPageNode(instance.getCurrentPage());
+			},
+
 			getFirstPageField: function() {
 				var instance = this;
 
 				var firstField;
 
-				var pageNode = instance._getCurrentPageNode();
+				var pageNode = instance.getCurrentPageNode();
 
 				instance.eachField(
 					function(field) {
-						if (pageNode.contains(field.get('container'))) {
+						var visible = field.get('visible');
+
+						if (visible && pageNode.contains(field.get('container'))) {
 							firstField = field;
 						}
 
@@ -151,12 +159,6 @@ AUI.add(
 				if (firstField) {
 					firstField.focus();
 				}
-			},
-
-			_getCurrentPageNode: function() {
-				var instance = this;
-
-				return instance.getPageNode(instance.getCurrentPage());
 			},
 
 			_getPaginationControlsNode: function() {

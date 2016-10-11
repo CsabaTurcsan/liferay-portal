@@ -113,6 +113,10 @@ public class DLFileEntryAssetRenderer
 		}
 	}
 
+	/**
+	 * @deprecated As of 1.1.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public Date getDisplayDate() {
 		return _fileEntry.getModifiedDate();

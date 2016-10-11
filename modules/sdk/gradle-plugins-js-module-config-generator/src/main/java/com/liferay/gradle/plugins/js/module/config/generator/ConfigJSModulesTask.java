@@ -24,7 +24,6 @@ import java.io.File;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -37,8 +36,6 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
@@ -50,24 +47,7 @@ public class ConfigJSModulesTask
 	extends ExecuteNodeScriptTask implements PatternFilterable {
 
 	public ConfigJSModulesTask() {
-		dependsOn(
-			JSModuleConfigGeneratorPlugin.
-				DOWNLOAD_LIFERAY_MODULE_CONFIG_GENERATOR_TASK_NAME);
-
 		include("**/*.es.js*", "**/*.soy.js*");
-
-		setScriptFile(
-			new Callable<File>() {
-
-				@Override
-				public File call() throws Exception {
-					return new File(
-						getNodeDir(),
-						"node_modules/liferay-module-config-generator/bin/" +
-							"index.js");
-				}
-
-			});
 	}
 
 	@Override
@@ -101,7 +81,7 @@ public class ConfigJSModulesTask
 	}
 
 	@Override
-	public void executeNode() {
+	public void executeNode() throws Exception {
 		Project project = getProject();
 
 		final File outputDir = getOutputDir();
@@ -167,12 +147,10 @@ public class ConfigJSModulesTask
 		return GradleUtil.toString(_moduleFormat);
 	}
 
-	@OutputDirectory
 	public File getOutputDir() {
 		return new File(getTemporaryDir(), "files");
 	}
 
-	@OutputFile
 	public File getOutputFile() {
 		return GradleUtil.toFile(getProject(), _outputFile);
 	}

@@ -72,6 +72,10 @@ public class DLFolderAssetRenderer
 		return _folder.getPrimaryKey();
 	}
 
+	/**
+	 * @deprecated As of 1.1.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public Date getDisplayDate() {
 		return _folder.getModifiedDate();

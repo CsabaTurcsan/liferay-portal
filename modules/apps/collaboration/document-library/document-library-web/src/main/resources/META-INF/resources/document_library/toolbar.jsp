@@ -30,19 +30,19 @@ long fileEntryTypeId = ParamUtil.getLong(request, "fileEntryTypeId", -1);
 String searchContainerId = ParamUtil.getString(request, "searchContainerId");
 
 boolean search = mvcRenderCommandName.equals("/document_library/search");
+
+DLPortletInstanceSettingsHelper dlPortletInstanceSettingsHelper = new DLPortletInstanceSettingsHelper(dlRequestHelper);
 %>
 
 <liferay-frontend:management-bar
-	includeCheckBox="<%= DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(repositoryId, folderId, WorkflowConstants.STATUS_ANY, true) > 0 %>"
+	disabled="<%= DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(repositoryId, folderId, WorkflowConstants.STATUS_ANY, true) <= 0 %>"
+	includeCheckBox="<%= !user.isDefaultUser() && dlPortletInstanceSettingsHelper.isShowActions() %>"
 	searchContainerId="<%= searchContainerId %>"
 >
 	<liferay-frontend:management-bar-buttons>
 		<liferay-frontend:management-bar-sidenav-toggler-button
-			disabled="<%= false %>"
-			href="javascript:;"
 			icon="info-circle"
 			label="info"
-			sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 		/>
 
 		<c:if test="<%= !search %>">
@@ -99,17 +99,47 @@ boolean search = mvcRenderCommandName.equals("/document_library/search");
 		</liferay-frontend:management-bar-navigation>
 
 		<c:if test='<%= !search && !navigation.equals("recent") %>'>
-			<liferay-util:include page="/document_library/sort_button.jsp" servletContext="<%= application %>" />
+
+			<%
+			int deltaEntry = ParamUtil.getInteger(request, "deltaEntry");
+
+			String orderByCol = GetterUtil.getString((String)request.getAttribute("view.jsp-orderByCol"));
+			String orderByType = GetterUtil.getString((String)request.getAttribute("view.jsp-orderByType"));
+
+			Map<String, String> orderColumns = new HashMap<String, String>();
+
+			orderColumns.put("creationDate", "create-date");
+			orderColumns.put("downloads", "downloads");
+			orderColumns.put("modifiedDate", "modified-date");
+			orderColumns.put("size", "size");
+			orderColumns.put("title", "title");
+
+			PortletURL sortURL = renderResponse.createRenderURL();
+
+			sortURL.setParameter("mvcRenderCommandName", (folderId == DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) ? "/document_library/view" : "/document_library/view_folder");
+			sortURL.setParameter("navigation", navigation);
+
+			if (deltaEntry > 0) {
+				sortURL.setParameter("deltaEntry", String.valueOf(deltaEntry));
+			}
+
+			sortURL.setParameter("folderId", String.valueOf(folderId));
+			sortURL.setParameter("fileEntryTypeId", String.valueOf(fileEntryTypeId));
+			%>
+
+			<liferay-frontend:management-bar-sort
+				orderByCol="<%= orderByCol %>"
+				orderByType="<%= orderByType %>"
+				orderColumns="<%= orderColumns %>"
+				portletURL="<%= sortURL %>"
+			/>
 		</c:if>
 	</liferay-frontend:management-bar-filters>
 
 	<liferay-frontend:management-bar-action-buttons>
 		<liferay-frontend:management-bar-sidenav-toggler-button
-			disabled="<%= false %>"
-			href="javascript:;"
 			icon="info-circle"
 			label="info"
-			sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 		/>
 
 		<%
@@ -119,7 +149,13 @@ boolean search = mvcRenderCommandName.equals("/document_library/search");
 		<c:if test="<%= !scopeGroup.isStaged() || scopeGroup.isStagingGroup() || !scopeGroup.isStagedPortlet(DLPortletKeys.DOCUMENT_LIBRARY) %>">
 
 			<%
-			String taglibURL = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.CHECKIN + "'}); void(0);";
+			String taglibURL = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: 'download'}); void(0);";
+			%>
+
+			<liferay-frontend:management-bar-button href="<%= taglibURL %>" icon="download" label="download" />
+
+			<%
+			taglibURL = "javascript:Liferay.fire('" + renderResponse.getNamespace() + "editEntry', {action: '" + Constants.CHECKIN + "'}); void(0);";
 			%>
 
 			<liferay-frontend:management-bar-button href="<%= taglibURL %>" icon="unlock" label="unlock" />
@@ -137,17 +173,17 @@ boolean search = mvcRenderCommandName.equals("/document_library/search");
 			<liferay-frontend:management-bar-button href="<%= taglibURL %>" icon="change" label="move" />
 		</c:if>
 
-		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "deleteEntries();" %>' icon='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "trash" : "times" %>' id="deleteAction" label='<%= TrashUtil.isTrashEnabled(scopeGroupId) ? "recycle-bin" : "delete" %>' />
+		<liferay-frontend:management-bar-button href='<%= "javascript:" + renderResponse.getNamespace() + "deleteEntries();" %>' icon='<%= DLTrashUtil.isTrashEnabled(scopeGroupId, repositoryId) ? "trash" : "times" %>' id="deleteAction" label='<%= DLTrashUtil.isTrashEnabled(scopeGroupId, repositoryId) ? "recycle-bin" : "delete" %>' />
 	</liferay-frontend:management-bar-action-buttons>
 </liferay-frontend:management-bar>
 
 <aui:script>
 	function <portlet:namespace />deleteEntries() {
-		if (<%= TrashUtil.isTrashEnabled(scopeGroupId) %> || confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
+		if (<%= DLTrashUtil.isTrashEnabled(scopeGroupId, repositoryId) %> || confirm('<%= UnicodeLanguageUtil.get(request, "are-you-sure-you-want-to-delete-the-selected-entries") %>')) {
 			Liferay.fire(
 				'<%= renderResponse.getNamespace() %>editEntry',
 				{
-					action: '<%= TrashUtil.isTrashEnabled(scopeGroupId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>'
+					action: '<%= DLTrashUtil.isTrashEnabled(scopeGroupId, repositoryId) ? Constants.MOVE_TO_TRASH : Constants.DELETE %>'
 				}
 			);
 		}

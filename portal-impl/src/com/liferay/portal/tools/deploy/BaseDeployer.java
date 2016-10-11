@@ -134,7 +134,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		auiTaglibDTD = System.getProperty("deployer.aui.taglib.dtd");
 		portletTaglibDTD = System.getProperty("deployer.portlet.taglib.dtd");
 		portletExtTaglibDTD = System.getProperty(
-			"deployer.portlet.ext.taglib.dtd");
+			"deployer.portlet-ext.taglib.dtd");
 		securityTaglibDTD = System.getProperty("deployer.security.taglib.dtd");
 		themeTaglibDTD = System.getProperty("deployer.theme.taglib.dtd");
 		uiTaglibDTD = System.getProperty("deployer.ui.taglib.dtd");
@@ -764,7 +764,9 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 			excludes += "/WEB-INF/web.xml";
 
-			WarTask.war(srcFile, tempDir, excludes, webXml);
+			File tempFile = new File(tempDir, displayName + ".war");
+
+			WarTask.war(srcFile, tempFile, excludes, webXml);
 
 			if (isJEEDeploymentEnabled()) {
 				File tempWarDir = new File(
@@ -787,7 +789,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 				DeleteTask.deleteDirectory(tempWarDir);
 			}
 			else {
-				if (!tempDir.renameTo(deployDir)) {
+				if (!tempFile.renameTo(deployDir)) {
 					WarTask.war(srcFile, deployDir, excludes, webXml);
 				}
 
@@ -871,6 +873,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 		String specifiedContext = autoDeploymentContext.getContext();
 
 		String displayName = specifiedContext;
+
 		boolean overwrite = false;
 		String preliminaryContext = specifiedContext;
 
@@ -930,7 +933,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			deployDir = jbossPrefix + deployDir;
 		}
 		else if (appServerType.equals(ServerDetector.WILDFLY_ID)) {
-			deployDir = wildflyPrefix + deployDir;
+			deployDir = GetterUtil.getString(wildflyPrefix) + deployDir;
 		}
 		else if (appServerType.equals(ServerDetector.GLASSFISH_ID) ||
 				 appServerType.equals(ServerDetector.JETTY_ID) ||
@@ -1902,8 +1905,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 			String servletClass = GetterUtil.getString(
 				servletClassElement.getText());
 
-			if (servletClass.equals(
-					PortalClassLoaderServlet.class.getName()) ||
+			if (servletClass.equals(PortalClassLoaderServlet.class.getName()) ||
 				servletClass.equals(PortalDelegateServlet.class.getName()) ||
 				servletClass.equals(PortletServlet.class.getName())) {
 
@@ -2031,6 +2033,7 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		if ((x == -1) || (y == -1)) {
 			x = webXmlContent.lastIndexOf("</display-name>") + 15;
+
 			y = x;
 		}
 		else {

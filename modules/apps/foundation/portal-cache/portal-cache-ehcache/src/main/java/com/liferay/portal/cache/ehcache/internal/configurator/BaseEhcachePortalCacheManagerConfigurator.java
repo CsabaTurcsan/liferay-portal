@@ -165,7 +165,7 @@ public abstract class BaseEhcachePortalCacheManagerConfigurator {
 
 			Properties properties = parseProperties(
 				cacheEventListenerFactoryConfiguration.getProperties(),
-				cacheEventListenerFactoryConfiguration. getPropertySeparator());
+				cacheEventListenerFactoryConfiguration.getPropertySeparator());
 
 			String factoryClassName =
 				cacheEventListenerFactoryConfiguration.
@@ -206,9 +206,8 @@ public abstract class BaseEhcachePortalCacheManagerConfigurator {
 			null, requireSerialization);
 	}
 
-	protected Set<Properties>
-		parseCacheManagerEventListenerConfigurations(
-			FactoryConfiguration<?> factoryConfiguration) {
+	protected Set<Properties> parseCacheManagerEventListenerConfigurations(
+		FactoryConfiguration<?> factoryConfiguration) {
 
 		if (factoryConfiguration == null) {
 			return Collections.emptySet();

@@ -1,4 +1,5 @@
 <definition component-name="portal-smoke">
+	<property name="portal.release" value="true" />
 	<property name="testray.main.component.name" value="Smoke" />
 
 	<set-up>
@@ -24,7 +25,6 @@
 	</tear-down>
 
 	<command description="Ensure that the super admin can add pages, add portlets, navigate to the product menu, use the WYSIWYG editor, and view alert messages." name="Smoke" priority="5">
-		<property name="portal.acceptance" value="true" />
 		<property name="portal.smoke" value="true" />
 		<property name="test.assert.warning.exceptions" value="true" />
 

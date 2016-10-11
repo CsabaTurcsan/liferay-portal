@@ -124,7 +124,7 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 				thread.getStatusDate(), thread.getLastPostDate(),
 				MBThread.class.getName(), thread.getThreadId(),
 				thread.getUuid(), 0, new long[0], new String[0], true, false,
-				null, null, null, null,
+				null, null, thread.getStatusDate(), null, null,
 				String.valueOf(thread.getRootMessageId()), null, null, null,
 				null, 0, 0, serviceContext.getAssetPriority());
 		}
@@ -851,7 +851,9 @@ public class MBThreadLocalServiceImpl extends MBThreadLocalServiceBaseImpl {
 
 			// Attachments
 
-			for (FileEntry fileEntry : message.getAttachmentsFileEntries()) {
+			for (FileEntry fileEntry :
+					message.getDeletedAttachmentsFileEntries()) {
+
 				PortletFileRepositoryUtil.restorePortletFileEntryFromTrash(
 					thread.getStatusByUserId(), fileEntry.getFileEntryId());
 			}

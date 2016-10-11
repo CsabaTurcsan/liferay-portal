@@ -28,6 +28,7 @@ import com.liferay.portal.upgrade.v7_0_0.util.PortletPreferencesRow;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import java.util.Enumeration;
 
@@ -65,6 +66,14 @@ public abstract class UpgradePortletSettings extends UpgradeProcess {
 
 			ps.executeUpdate();
 		}
+		catch (SQLException sqle) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Unable to add portlet preferences " +
+						portletPreferencesRow.getPortletPreferencesId(),
+					sqle);
+			}
+		}
 	}
 
 	protected void copyPortletSettingsAsServiceSettings(
@@ -94,6 +103,7 @@ public abstract class UpgradePortletSettings extends UpgradeProcess {
 					long groupId = getGroupId(plid);
 
 					portletPreferencesRow.setOwnerId(groupId);
+
 					portletPreferencesRow.setPlid(0);
 
 					if (_log.isInfoEnabled()) {

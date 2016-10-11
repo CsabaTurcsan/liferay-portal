@@ -42,9 +42,9 @@ import java.util.regex.Pattern;
 /**
  * This abstract class should be extended for startup processes that verify the
  * integrity of the database. They can be added as part of
- * <code>com.liferay.portal.verify.VerifyProcessSuite</code> or be executed
- * independently by being set in the portal.properties file. Each of these
- * processes should not cause any problems if run multiple times.
+ * <code>VerifyProcessSuite</code> or be executed independently by being set in
+ * the portal.properties file. Each of these processes should not cause any
+ * problems if run multiple times.
  *
  * @author Alexander Chow
  * @author Hugo Huijser
@@ -137,8 +137,8 @@ public abstract class VerifyProcess extends BaseDBProcess {
 	 */
 	protected int getBuildNumber() throws Exception {
 		try (PreparedStatement ps = connection.prepareStatement(
-				"select buildNumber from Release_ where servletContextName " +
-					"= ?")) {
+				"select buildNumber from Release_ where servletContextName = " +
+					"?")) {
 
 			ps.setString(1, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 

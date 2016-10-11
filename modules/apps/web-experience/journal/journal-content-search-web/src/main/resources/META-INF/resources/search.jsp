@@ -18,17 +18,18 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
-
-if (Validator.isNull(redirect)) {
-	PortletURL portletURL = renderResponse.createRenderURL();
-
-	redirect = portletURL.toString();
-}
-
 String backURL = ParamUtil.getString(request, "backURL");
 
 if (Validator.isNotNull(redirect)) {
 	portletDisplay.setURLBack(redirect);
+}
+else if (Validator.isNotNull(backURL)) {
+	portletDisplay.setURLBack(backURL);
+}
+else {
+	PortletURL portletURL = renderResponse.createRenderURL();
+
+	portletDisplay.setURLBack(portletURL.toString());
 }
 
 PortletURL portletURL = PortletURLUtil.getCurrent(renderRequest, renderResponse);
@@ -125,9 +126,11 @@ journalContentSearch.setResults(documents);
 					</h6>
 				</c:if>
 
-				<h6 class="text-default">
-					<%@ include file="/article_content.jspf" %>
-				</h6>
+				<c:if test="<%= Validator.isNotNull(summary.getContent()) %>">
+					<h6 class="text-default">
+						<%@ include file="/article_content.jspf" %>
+					</h6>
+				</c:if>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
 

@@ -88,6 +88,7 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
@@ -102,7 +103,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.service.impl.LayoutLocalServiceVirtualLayoutsAdvice;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.PortletPreferencesImpl;
 import com.liferay.sites.kernel.util.Sites;
@@ -210,7 +210,7 @@ public class SitesImpl implements Sites {
 		}
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY);
+			WebKeys.THEME_DISPLAY);
 
 		Group unescapedGroup = group.toUnescapedModel();
 
@@ -242,6 +242,13 @@ public class SitesImpl implements Sites {
 			boolean linkEnabled)
 		throws Exception {
 
+		Locale siteDefaultLocale = LocaleThreadLocal.getSiteDefaultLocale();
+
+		LayoutTypePortlet targetLayoutType =
+			(LayoutTypePortlet)targetLayout.getLayoutType();
+
+		List<String> targetLayoutPortletIds = targetLayoutType.getPortletIds();
+
 		Layout layoutPrototypeLayout = layoutPrototype.getLayout();
 
 		ServiceContext serviceContext =
@@ -251,19 +258,24 @@ public class SitesImpl implements Sites {
 		serviceContext.setAttribute(
 			"layoutPrototypeUuid", layoutPrototype.getUuid());
 
-		LayoutTypePortlet targetLayoutType =
-			(LayoutTypePortlet)targetLayout.getLayoutType();
+		try {
+			Locale targetSiteDefaultLocale = PortalUtil.getSiteDefaultLocale(
+				targetLayout.getGroupId());
 
-		List<String> targetLayoutPortletIds = targetLayoutType.getPortletIds();
+			LocaleThreadLocal.setSiteDefaultLocale(targetSiteDefaultLocale);
 
-		targetLayout = LayoutLocalServiceUtil.updateLayout(
-			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
-			targetLayout.getLayoutId(), targetLayout.getParentLayoutId(),
-			targetLayout.getNameMap(), targetLayout.getTitleMap(),
-			targetLayout.getDescriptionMap(), targetLayout.getKeywordsMap(),
-			targetLayout.getRobotsMap(), layoutPrototypeLayout.getType(),
-			targetLayout.getHidden(), targetLayout.getFriendlyURLMap(),
-			targetLayout.getIconImage(), null, serviceContext);
+			targetLayout = LayoutLocalServiceUtil.updateLayout(
+				targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
+				targetLayout.getLayoutId(), targetLayout.getParentLayoutId(),
+				targetLayout.getNameMap(), targetLayout.getTitleMap(),
+				targetLayout.getDescriptionMap(), targetLayout.getKeywordsMap(),
+				targetLayout.getRobotsMap(), layoutPrototypeLayout.getType(),
+				targetLayout.getHidden(), targetLayout.getFriendlyURLMap(),
+				targetLayout.getIconImage(), null, serviceContext);
+		}
+		finally {
+			LocaleThreadLocal.setSiteDefaultLocale(siteDefaultLocale);
+		}
 
 		targetLayout = LayoutLocalServiceUtil.updateLayout(
 			targetLayout.getGroupId(), targetLayout.isPrivateLayout(),
@@ -560,21 +572,9 @@ public class SitesImpl implements Sites {
 		LayoutServiceUtil.deleteLayout(
 			groupId, privateLayout, layoutId, serviceContext);
 
-		long newPlid = layout.getParentPlid();
-
-		if (newPlid <= 0) {
-			LayoutSet layoutSet = layout.getLayoutSet();
-
-			Layout firstLayout = LayoutLocalServiceUtil.fetchFirstLayout(
-				layoutSet.getGroupId(), layoutSet.isPrivateLayout(),
-				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
-
-			if (firstLayout != null) {
-				newPlid = firstLayout.getPlid();
-			}
-		}
-
-		return new Object[] {group, oldFriendlyURL, newPlid};
+		return new Object[] {
+			group, oldFriendlyURL, LayoutConstants.DEFAULT_PLID
+		};
 	}
 
 	@Override
@@ -711,6 +711,9 @@ public class SitesImpl implements Sites {
 			new String[] {Boolean.FALSE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_SETTINGS,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_SETTINGS,
@@ -1290,7 +1293,7 @@ public class SitesImpl implements Sites {
 
 		try {
 			Lock lock = LockManagerUtil.lock(
-				LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
+				SitesImpl.class.getName(),
 				String.valueOf(layoutSet.getLayoutSetId()), owner);
 
 			// Double deep check
@@ -1304,7 +1307,7 @@ public class SitesImpl implements Sites {
 					// Acquire lock if the lock is older than the lock max time
 
 					lock = LockManagerUtil.lock(
-						LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
+						SitesImpl.class.getName(),
 						String.valueOf(layoutSet.getLayoutSetId()),
 						lock.getOwner(), owner);
 
@@ -1349,10 +1352,21 @@ public class SitesImpl implements Sites {
 				layoutSet.isPrivateLayout(), parameterMap, importData);
 		}
 		catch (Exception e) {
-			_log.error(e, e);
+			mergeFailCount++;
+
+			StringBundler sb = new StringBundler(6);
+
+			sb.append("Merge fail count increased to ");
+			sb.append(mergeFailCount);
+			sb.append(" for layout set prototype ");
+			sb.append(layoutSetPrototype.getLayoutSetPrototypeId());
+			sb.append(" and layout set ");
+			sb.append(layoutSet.getLayoutSetId());
+
+			_log.error(sb.toString(), e);
 
 			layoutSetPrototypeSettingsProperties.setProperty(
-				MERGE_FAIL_COUNT, String.valueOf(++mergeFailCount));
+				MERGE_FAIL_COUNT, String.valueOf(mergeFailCount));
 
 			// Invoke updateImpl so that we do not trigger the listeners
 
@@ -1362,7 +1376,7 @@ public class SitesImpl implements Sites {
 			MergeLayoutPrototypesThreadLocal.setInProgress(false);
 
 			LockManagerUtil.unlock(
-				LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
+				SitesImpl.class.getName(),
 				String.valueOf(layoutSet.getLayoutSetId()), owner);
 		}
 	}
@@ -1645,8 +1659,8 @@ public class SitesImpl implements Sites {
 
 		try {
 			Lock lock = LockManagerUtil.lock(
-				LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
-				String.valueOf(layout.getPlid()), owner);
+				SitesImpl.class.getName(), String.valueOf(layout.getPlid()),
+				owner);
 
 			if (!owner.equals(lock.getOwner())) {
 				Date createDate = lock.getCreateDate();
@@ -1657,7 +1671,7 @@ public class SitesImpl implements Sites {
 					// Acquire lock if the lock is older than the lock max time
 
 					lock = LockManagerUtil.lock(
-						LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
+						SitesImpl.class.getName(),
 						String.valueOf(layout.getPlid()), lock.getOwner(),
 						owner);
 
@@ -1696,8 +1710,8 @@ public class SitesImpl implements Sites {
 			MergeLayoutPrototypesThreadLocal.setInProgress(false);
 
 			LockManagerUtil.unlock(
-				LayoutLocalServiceVirtualLayoutsAdvice.class.getName(),
-				String.valueOf(layout.getPlid()), owner);
+				SitesImpl.class.getName(), String.valueOf(layout.getPlid()),
+				owner);
 		}
 	}
 
@@ -1765,6 +1779,9 @@ public class SitesImpl implements Sites {
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_LINK_ENABLED,
+			new String[] {Boolean.TRUE.toString()});
+		parameterMap.put(
+			PortletDataHandlerKeys.LAYOUT_SET_PROTOTYPE_SETTINGS,
 			new String[] {Boolean.TRUE.toString()});
 		parameterMap.put(
 			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE,

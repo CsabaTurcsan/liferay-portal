@@ -68,6 +68,10 @@ public class JournalFolderAssetRenderer
 		return _folder.getFolderId();
 	}
 
+	/**
+	 * @deprecated As of 1.4.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public Date getDisplayDate() {
 		return _folder.getModifiedDate();

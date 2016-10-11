@@ -72,6 +72,8 @@ public class CalendarBookingWrapper implements CalendarBooking,
 		attributes.put("calendarId", getCalendarId());
 		attributes.put("calendarResourceId", getCalendarResourceId());
 		attributes.put("parentCalendarBookingId", getParentCalendarBookingId());
+		attributes.put("recurringCalendarBookingId",
+			getRecurringCalendarBookingId());
 		attributes.put("vEventUid", getVEventUid());
 		attributes.put("title", getTitle());
 		attributes.put("description", getDescription());
@@ -166,6 +168,13 @@ public class CalendarBookingWrapper implements CalendarBooking,
 
 		if (parentCalendarBookingId != null) {
 			setParentCalendarBookingId(parentCalendarBookingId);
+		}
+
+		Long recurringCalendarBookingId = (Long)attributes.get(
+				"recurringCalendarBookingId");
+
+		if (recurringCalendarBookingId != null) {
+			setRecurringCalendarBookingId(recurringCalendarBookingId);
 		}
 
 		String vEventUid = (String)attributes.get("vEventUid");
@@ -269,6 +278,28 @@ public class CalendarBookingWrapper implements CalendarBooking,
 		if (statusDate != null) {
 			setStatusDate(statusDate);
 		}
+	}
+
+	@Override
+	public Calendar getCalendar()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _calendarBooking.getCalendar();
+	}
+
+	@Override
+	public CalendarBooking toEscapedModel() {
+		return new CalendarBookingWrapper(_calendarBooking.toEscapedModel());
+	}
+
+	@Override
+	public CalendarBooking toUnescapedModel() {
+		return new CalendarBookingWrapper(_calendarBooking.toUnescapedModel());
+	}
+
+	@Override
+	public CalendarResource getCalendarResource()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _calendarBooking.getCalendarResource();
 	}
 
 	/**
@@ -397,6 +428,11 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
+	public boolean isMasterRecurringBooking() {
+		return _calendarBooking.isMasterRecurringBooking();
+	}
+
+	@Override
 	public boolean isNew() {
 		return _calendarBooking.isNew();
 	}
@@ -427,31 +463,9 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
-	public com.liferay.calendar.model.Calendar getCalendar()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _calendarBooking.getCalendar();
-	}
-
-	@Override
-	public com.liferay.calendar.model.CalendarBooking getParentCalendarBooking()
+	public CalendarBooking getParentCalendarBooking()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _calendarBooking.getParentCalendarBooking();
-	}
-
-	@Override
-	public com.liferay.calendar.model.CalendarBooking toEscapedModel() {
-		return new CalendarBookingWrapper(_calendarBooking.toEscapedModel());
-	}
-
-	@Override
-	public com.liferay.calendar.model.CalendarBooking toUnescapedModel() {
-		return new CalendarBookingWrapper(_calendarBooking.toUnescapedModel());
-	}
-
-	@Override
-	public com.liferay.calendar.model.CalendarResource getCalendarResource()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _calendarBooking.getCalendarResource();
 	}
 
 	@Override
@@ -475,7 +489,7 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.CacheModel<com.liferay.calendar.model.CalendarBooking> toCacheModel() {
+	public com.liferay.portal.kernel.model.CacheModel<CalendarBooking> toCacheModel() {
 		return _calendarBooking.toCacheModel();
 	}
 
@@ -501,8 +515,7 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
-	public int compareTo(
-		com.liferay.calendar.model.CalendarBooking calendarBooking) {
+	public int compareTo(CalendarBooking calendarBooking) {
 		return _calendarBooking.compareTo(calendarBooking);
 	}
 
@@ -832,7 +845,7 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
-	public java.util.List<com.liferay.calendar.model.CalendarBooking> getChildCalendarBookings() {
+	public java.util.List<CalendarBooking> getChildCalendarBookings() {
 		return _calendarBooking.getChildCalendarBookings();
 	}
 
@@ -954,6 +967,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	@Override
 	public long getPrimaryKey() {
 		return _calendarBooking.getPrimaryKey();
+	}
+
+	/**
+	* Returns the recurring calendar booking ID of this calendar booking.
+	*
+	* @return the recurring calendar booking ID of this calendar booking
+	*/
+	@Override
+	public long getRecurringCalendarBookingId() {
+		return _calendarBooking.getRecurringCalendarBookingId();
 	}
 
 	/**
@@ -1292,6 +1315,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	@Override
 	public void setRecurrence(java.lang.String recurrence) {
 		_calendarBooking.setRecurrence(recurrence);
+	}
+
+	/**
+	* Sets the recurring calendar booking ID of this calendar booking.
+	*
+	* @param recurringCalendarBookingId the recurring calendar booking ID of this calendar booking
+	*/
+	@Override
+	public void setRecurringCalendarBookingId(long recurringCalendarBookingId) {
+		_calendarBooking.setRecurringCalendarBookingId(recurringCalendarBookingId);
 	}
 
 	/**

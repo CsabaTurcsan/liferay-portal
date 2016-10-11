@@ -280,8 +280,11 @@ public class OpenIdServiceHandlerImpl implements OpenIdServiceHandler {
 		long creatorUserId = 0;
 		long companyId = themeDisplay.getCompanyId();
 		boolean autoPassword = false;
+
 		String password1 = PwdGenerator.getPassword();
+
 		String password2 = password1;
+
 		boolean autoScreenName = true;
 		String screenName = StringPool.BLANK;
 		long facebookId = 0;
@@ -385,9 +388,9 @@ public class OpenIdServiceHandlerImpl implements OpenIdServiceHandler {
 
 			Map<String, String> openIdAXTypes = openIdProvider.getAxTypes();
 
-			for (String openIdAXType : openIdAXTypes.keySet()) {
+			for (Map.Entry<String, String> entry : openIdAXTypes.entrySet()) {
 				fetchRequest.addAttribute(
-					openIdAXType, openIdAXTypes.get(openIdAXType), true);
+					entry.getKey(), entry.getValue(), true);
 			}
 
 			authRequest.addExtension(fetchRequest);

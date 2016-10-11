@@ -933,7 +933,7 @@ public class JournalArticleLocalServiceWrapper
 	folder
 	* @return the updated web content article, which was moved to a new
 	folder
-	* @deprecated As of 7.0.0, replaced by {@link #moveArticle(long, String,
+	* @deprecated As of 4.0.0, replaced by {@link #moveArticle(long, String,
 	long, ServiceContext)}
 	*/
 	@Deprecated
@@ -1936,7 +1936,7 @@ public class JournalArticleLocalServiceWrapper
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #search(long, long, List,
+	* @deprecated As of 4.0.0, replaced by {@link #search(long, long, List,
 	long, String, String, String, String, int, String, String,
 	LinkedHashMap, boolean, int, int, Sort)}
 	*/
@@ -2479,7 +2479,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
 	* @return the web content from the matching web content article
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of 4.0.0, replaced by {@link
 	#getArticleContent(JournalArticle, String, String, String,
 	PortletRequestModel,ThemeDisplay)}
 	*/
@@ -2538,7 +2538,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
 	* @return the web content from the matching web content article
-	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	* @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	String, double, String, String, String, PortletRequestModel,
 	ThemeDisplay)}
 	*/
@@ -2565,7 +2565,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
 	* @return the web content from the matching web content article
-	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	* @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	String, double, String, String, String, PortletRequestModel,
 	ThemeDisplay)}
 	*/
@@ -2619,7 +2619,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
 	* @return the latest web content from the matching web content article
-	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	* @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	String, String, String, String, PortletRequestModel,
 	ThemeDisplay)}
 	*/
@@ -2644,7 +2644,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param languageId the primary key of the language translation to get
 	* @param themeDisplay the theme display
 	* @return the latest web content from the matching web content article
-	* @deprecated As of 7.0.0, replaced by {@link #getArticleContent(long,
+	* @deprecated As of 4.0.0, replaced by {@link #getArticleContent(long,
 	String, String, String, String, PortletRequestModel,
 	ThemeDisplay)}
 	*/
@@ -2657,6 +2657,32 @@ public class JournalArticleLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _journalArticleLocalService.getArticleContent(groupId,
 			articleId, viewMode, languageId, themeDisplay);
+	}
+
+	@Override
+	public java.lang.String getArticleDescription(long articlePK,
+		java.lang.String languageId) {
+		return _journalArticleLocalService.getArticleDescription(articlePK,
+			languageId);
+	}
+
+	@Override
+	public java.lang.String getArticleDescription(long articlePK,
+		java.util.Locale locale) {
+		return _journalArticleLocalService.getArticleDescription(articlePK,
+			locale);
+	}
+
+	@Override
+	public java.lang.String getArticleTitle(long articlePK,
+		java.lang.String languageId) {
+		return _journalArticleLocalService.getArticleTitle(articlePK, languageId);
+	}
+
+	@Override
+	public java.lang.String getArticleTitle(long articlePK,
+		java.util.Locale locale) {
+		return _journalArticleLocalService.getArticleTitle(articlePK, locale);
 	}
 
 	/**
@@ -2736,6 +2762,12 @@ public class JournalArticleLocalServiceWrapper
 		com.liferay.portal.kernel.util.OrderByComparator<T> orderByComparator) {
 		return _journalArticleLocalService.dynamicQuery(dynamicQuery, start,
 			end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<java.lang.String> getArticleLocalizationLanguageIds(
+		long articlePK) {
+		return _journalArticleLocalService.getArticleLocalizationLanguageIds(articlePK);
 	}
 
 	/**
@@ -2962,6 +2994,32 @@ public class JournalArticleLocalServiceWrapper
 	public java.util.List<com.liferay.journal.model.JournalArticle> getArticlesBySmallImageId(
 		long smallImageId) {
 		return _journalArticleLocalService.getArticlesBySmallImageId(smallImageId);
+	}
+
+	@Override
+	public java.util.List<com.liferay.journal.model.JournalArticle> getArticlesByStructureId(
+		long groupId, java.lang.String ddmStructureKey, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.journal.model.JournalArticle> obc) {
+		return _journalArticleLocalService.getArticlesByStructureId(groupId,
+			ddmStructureKey, start, end, obc);
+	}
+
+	@Override
+	public java.util.List<com.liferay.journal.model.JournalArticle> getArticlesByStructureId(
+		long groupId, java.lang.String ddmStructureKey, int status, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.journal.model.JournalArticle> obc) {
+		return _journalArticleLocalService.getArticlesByStructureId(groupId,
+			ddmStructureKey, status, start, end, obc);
+	}
+
+	@Override
+	public java.util.List<com.liferay.journal.model.JournalArticle> getArticlesByStructureId(
+		long groupId, long classNameId, java.lang.String ddmStructureKey,
+		int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.journal.model.JournalArticle> obc) {
+		return _journalArticleLocalService.getArticlesByStructureId(groupId,
+			classNameId, ddmStructureKey, status, start, end, obc);
 	}
 
 	/**
@@ -3513,6 +3571,18 @@ public class JournalArticleLocalServiceWrapper
 			start, end);
 	}
 
+	@Override
+	public java.util.Map<java.util.Locale, java.lang.String> getArticleDescriptionMap(
+		long articlePK) {
+		return _journalArticleLocalService.getArticleDescriptionMap(articlePK);
+	}
+
+	@Override
+	public java.util.Map<java.util.Locale, java.lang.String> getArticleTitleMap(
+		long articlePK) {
+		return _journalArticleLocalService.getArticleTitleMap(articlePK);
+	}
+
 	/**
 	* Returns the number of rows matching the dynamic query.
 	*
@@ -3846,7 +3916,7 @@ public class JournalArticleLocalServiceWrapper
 	* @param assetTagNames the new asset tag names
 	* @param assetLinkEntryIds the primary keys of the new asset link
 	entries
-	* @deprecated As of 7.0.0, replaced by {@link #updateAsset(long,
+	* @deprecated As of 4.0.0, replaced by {@link #updateAsset(long,
 	JournalArticle, long[], String[], long[], Double)}
 	*/
 	@Deprecated
@@ -3918,7 +3988,7 @@ public class JournalArticleLocalServiceWrapper
 	article's old DDM template
 	* @param newDDMTemplateKey the primary key of the web content
 	article's new DDM template
-	* @deprecated As of 7.0.0, replaced by {@link #updateDDMTemplateKey}
+	* @deprecated As of 4.0.0, replaced by {@link #updateDDMTemplateKey}
 	*/
 	@Deprecated
 	@Override

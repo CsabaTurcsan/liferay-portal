@@ -21,9 +21,6 @@ import com.liferay.announcements.kernel.service.persistence.AnnouncementsDeliver
 import com.liferay.asset.kernel.service.persistence.AssetEntryFinder;
 import com.liferay.asset.kernel.service.persistence.AssetEntryPersistence;
 
-import com.liferay.blogs.kernel.service.persistence.BlogsStatsUserFinder;
-import com.liferay.blogs.kernel.service.persistence.BlogsStatsUserPersistence;
-
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryFinder;
 import com.liferay.document.library.kernel.service.persistence.DLFileEntryPersistence;
 import com.liferay.document.library.kernel.service.persistence.DLFileRankFinder;
@@ -475,9 +472,9 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @throws PortalException
 	 */
 	@Override
-	public void addGroupUsers(long groupId, List<User> Users)
+	public void addGroupUsers(long groupId, List<User> users)
 		throws PortalException {
-		groupPersistence.addUsers(groupId, Users);
+		groupPersistence.addUsers(groupId, users);
 	}
 
 	/**
@@ -511,8 +508,8 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	/**
 	 */
 	@Override
-	public void deleteGroupUsers(long groupId, List<User> Users) {
-		groupPersistence.removeUsers(groupId, Users);
+	public void deleteGroupUsers(long groupId, List<User> users) {
+		groupPersistence.removeUsers(groupId, users);
 	}
 
 	/**
@@ -603,9 +600,9 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @throws PortalException
 	 */
 	@Override
-	public void addOrganizationUsers(long organizationId, List<User> Users)
+	public void addOrganizationUsers(long organizationId, List<User> users)
 		throws PortalException {
-		organizationPersistence.addUsers(organizationId, Users);
+		organizationPersistence.addUsers(organizationId, users);
 	}
 
 	/**
@@ -639,8 +636,8 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	/**
 	 */
 	@Override
-	public void deleteOrganizationUsers(long organizationId, List<User> Users) {
-		organizationPersistence.removeUsers(organizationId, Users);
+	public void deleteOrganizationUsers(long organizationId, List<User> users) {
+		organizationPersistence.removeUsers(organizationId, users);
 	}
 
 	/**
@@ -733,9 +730,9 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @throws PortalException
 	 */
 	@Override
-	public void addRoleUsers(long roleId, List<User> Users)
+	public void addRoleUsers(long roleId, List<User> users)
 		throws PortalException {
-		rolePersistence.addUsers(roleId, Users);
+		rolePersistence.addUsers(roleId, users);
 	}
 
 	/**
@@ -773,8 +770,8 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	/**
 	 */
 	@Override
-	public void deleteRoleUsers(long roleId, List<User> Users) {
-		rolePersistence.removeUsers(roleId, Users);
+	public void deleteRoleUsers(long roleId, List<User> users) {
+		rolePersistence.removeUsers(roleId, users);
 	}
 
 	/**
@@ -867,9 +864,9 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @throws PortalException
 	 */
 	@Override
-	public void addTeamUsers(long teamId, List<User> Users)
+	public void addTeamUsers(long teamId, List<User> users)
 		throws PortalException {
-		teamPersistence.addUsers(teamId, Users);
+		teamPersistence.addUsers(teamId, users);
 	}
 
 	/**
@@ -903,8 +900,8 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	/**
 	 */
 	@Override
-	public void deleteTeamUsers(long teamId, List<User> Users) {
-		teamPersistence.removeUsers(teamId, Users);
+	public void deleteTeamUsers(long teamId, List<User> users) {
+		teamPersistence.removeUsers(teamId, users);
 	}
 
 	/**
@@ -995,9 +992,9 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	 * @throws PortalException
 	 */
 	@Override
-	public void addUserGroupUsers(long userGroupId, List<User> Users)
+	public void addUserGroupUsers(long userGroupId, List<User> users)
 		throws PortalException {
-		userGroupPersistence.addUsers(userGroupId, Users);
+		userGroupPersistence.addUsers(userGroupId, users);
 	}
 
 	/**
@@ -1035,8 +1032,8 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	/**
 	 */
 	@Override
-	public void deleteUserGroupUsers(long userGroupId, List<User> Users) {
-		userGroupPersistence.removeUsers(userGroupId, Users);
+	public void deleteUserGroupUsers(long userGroupId, List<User> users) {
+		userGroupPersistence.removeUsers(userGroupId, users);
 	}
 
 	/**
@@ -2075,63 +2072,6 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
-	 * Returns the blogs stats user local service.
-	 *
-	 * @return the blogs stats user local service
-	 */
-	public com.liferay.blogs.kernel.service.BlogsStatsUserLocalService getBlogsStatsUserLocalService() {
-		return blogsStatsUserLocalService;
-	}
-
-	/**
-	 * Sets the blogs stats user local service.
-	 *
-	 * @param blogsStatsUserLocalService the blogs stats user local service
-	 */
-	public void setBlogsStatsUserLocalService(
-		com.liferay.blogs.kernel.service.BlogsStatsUserLocalService blogsStatsUserLocalService) {
-		this.blogsStatsUserLocalService = blogsStatsUserLocalService;
-	}
-
-	/**
-	 * Returns the blogs stats user persistence.
-	 *
-	 * @return the blogs stats user persistence
-	 */
-	public BlogsStatsUserPersistence getBlogsStatsUserPersistence() {
-		return blogsStatsUserPersistence;
-	}
-
-	/**
-	 * Sets the blogs stats user persistence.
-	 *
-	 * @param blogsStatsUserPersistence the blogs stats user persistence
-	 */
-	public void setBlogsStatsUserPersistence(
-		BlogsStatsUserPersistence blogsStatsUserPersistence) {
-		this.blogsStatsUserPersistence = blogsStatsUserPersistence;
-	}
-
-	/**
-	 * Returns the blogs stats user finder.
-	 *
-	 * @return the blogs stats user finder
-	 */
-	public BlogsStatsUserFinder getBlogsStatsUserFinder() {
-		return blogsStatsUserFinder;
-	}
-
-	/**
-	 * Sets the blogs stats user finder.
-	 *
-	 * @param blogsStatsUserFinder the blogs stats user finder
-	 */
-	public void setBlogsStatsUserFinder(
-		BlogsStatsUserFinder blogsStatsUserFinder) {
-		this.blogsStatsUserFinder = blogsStatsUserFinder;
-	}
-
-	/**
 	 * Returns the document library file entry local service.
 	 *
 	 * @return the document library file entry local service
@@ -2879,7 +2819,7 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portal.kernel.service.UserLocalService.class)
+	@BeanReference(type = UserLocalService.class)
 	protected UserLocalService userLocalService;
 	@BeanReference(type = UserPersistence.class)
 	protected UserPersistence userPersistence;
@@ -2983,12 +2923,6 @@ public abstract class UserLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected AssetEntryPersistence assetEntryPersistence;
 	@BeanReference(type = AssetEntryFinder.class)
 	protected AssetEntryFinder assetEntryFinder;
-	@BeanReference(type = com.liferay.blogs.kernel.service.BlogsStatsUserLocalService.class)
-	protected com.liferay.blogs.kernel.service.BlogsStatsUserLocalService blogsStatsUserLocalService;
-	@BeanReference(type = BlogsStatsUserPersistence.class)
-	protected BlogsStatsUserPersistence blogsStatsUserPersistence;
-	@BeanReference(type = BlogsStatsUserFinder.class)
-	protected BlogsStatsUserFinder blogsStatsUserFinder;
 	@BeanReference(type = com.liferay.document.library.kernel.service.DLFileEntryLocalService.class)
 	protected com.liferay.document.library.kernel.service.DLFileEntryLocalService dlFileEntryLocalService;
 	@BeanReference(type = DLFileEntryPersistence.class)

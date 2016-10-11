@@ -293,9 +293,13 @@
 		},
 
 		focusFormField: function(el) {
+			var doc = $(document);
+
 			var interacting = false;
 
-			var doc = $(document);
+			el = Util.getDOM(el);
+
+			el = $(el);
 
 			doc.on(
 				'click.focusFormField',
@@ -306,12 +310,24 @@
 				}
 			);
 
-			el = Util.getDOM(el);
-
-			el = $(el);
-
 			if (!interacting && Util.inBrowserView(el)) {
-				el.focus();
+				var form = el.closest('form');
+
+				var focusable = !el.is(':disabled') && !el.is(':hidden');
+
+				if (!form.length || focusable) {
+					el.focus();
+				}
+				else {
+					var portletName = form.data('fm-namespace');
+
+					Liferay.once(
+						portletName + 'formReady',
+						function() {
+							el.focus();
+						}
+					);
+				}
 			}
 		},
 
@@ -923,7 +939,7 @@
 		showCapsLock: function(event, span) {
 			var keyCode = event.keyCode ? event.keyCode : event.which;
 
-			var shiftKeyCode = keyCode == 16 ? true : false;
+			var shiftKeyCode = keyCode === 16;
 
 			var shiftKey = event.shiftKey ? event.shiftKey : shiftKeyCode;
 
@@ -1235,6 +1251,11 @@
 			var dialog = event.dialog;
 
 			iframeBody.addClass('dialog-iframe-popup');
+
+			if (iframeBody.one('.lfr-form-content') && iframeBody.one('.button-holder.dialog-footer')) {
+				iframeBody.addClass('dialog-with-footer');
+			}
+
 			iframeBody.addClass(dialog.iframeConfig.bodyCssClass);
 
 			var detachEventHandles = function() {
@@ -1323,12 +1344,22 @@
 
 			ddmURL.setParameter('scopeTitle', config.title);
 
+			if ('searchRestriction' in config) {
+				ddmURL.setParameter('searchRestriction', config.searchRestriction);
+				ddmURL.setParameter('searchRestrictionClassNameId', config.searchRestrictionClassNameId);
+				ddmURL.setParameter('searchRestrictionClassPK', config.searchRestrictionClassPK);
+			}
+
 			if ('showAncestorScopes' in config) {
 				ddmURL.setParameter('showAncestorScopes', config.showAncestorScopes);
 			}
 
 			if ('showBackURL' in config) {
 				ddmURL.setParameter('showBackURL', config.showBackURL);
+			}
+
+			if ('showCacheableInput' in config) {
+				ddmURL.setParameter('showCacheableInput', config.showCacheableInput);
 			}
 
 			if ('showHeader' in config) {
@@ -1440,6 +1471,74 @@
 
 	Liferay.provide(
 		Util,
+		'editEntity',
+		function(config, callback) {
+			var dialog = Util.getWindow(config.id);
+
+			var eventName = config.eventName || config.id;
+
+			var eventHandles = [Liferay.on(eventName, callback)];
+
+			var detachSelectionOnHideFn = function(event) {
+				if (!event.newVal) {
+					(new A.EventHandle(eventHandles)).detach();
+				}
+			};
+
+			if (dialog) {
+				eventHandles.push(dialog.after(['destroy', 'visibleChange'], detachSelectionOnHideFn));
+
+				dialog.show();
+			}
+			else {
+				var destroyDialog = function(event) {
+					var dialogId = config.id;
+
+					var dialogWindow = Util.getWindow(dialogId);
+
+					if (dialogWindow && Util.getPortletId(dialogId) === event.portletId) {
+						dialogWindow.destroy();
+
+						Liferay.detach('destroyPortlet', destroyDialog);
+					}
+				};
+
+				var editURL = new Liferay.PortletURL.createURL(
+					config.uri,
+					A.merge(
+						{
+							eventName: eventName
+						},
+						config.urlParams
+					)
+				);
+
+				config.uri = editURL.toString();
+
+				config.dialogIframe = A.merge(
+					{
+						bodyCssClass: 'dialog-with-footer'
+					},
+					config.dialogIframe || {}
+				);
+
+				Util.openWindow(
+					config,
+					function(dialogWindow) {
+						eventHandles.push(
+							dialogWindow.after(['destroy', 'visibleChange'], detachSelectionOnHideFn)
+						);
+
+						Liferay.on('destroyPortlet', destroyDialog);
+					}
+				);
+			}
+		},
+		['aui-base', 'liferay-portlet-url', 'liferay-util-window']
+	);
+
+	Liferay.provide(
+		Util,
 		'selectEntity',
 		function(config, callback) {
 			var dialog = Util.getWindow(config.id);
@@ -1515,7 +1614,6 @@
 					}
 				);
 			}
-
 		},
 		['aui-base', 'liferay-util-window']
 	);
@@ -1748,6 +1846,7 @@
 		DROP_POSITION: 450,
 		MENU: 5000,
 		OVERLAY: 1000,
+		POPOVER: 1060,
 		TOOLTIP: 10000,
 		WINDOW: 1200
 	};

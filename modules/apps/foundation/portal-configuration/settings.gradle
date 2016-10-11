@@ -1,11 +1,15 @@
-FileTree bndFileTree = fileTree(dir: rootDir, include: "**/bnd.bnd")
+buildscript {
+	dependencies {
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.defaults", version: "latest.release"
+	}
 
-URI rootURI = rootDir.toURI()
+	repositories {
+		mavenLocal()
 
-include bndFileTree.collect {
-	String dirName = rootURI.relativize(it.parentFile.toURI())
+		maven {
+			url "https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public"
+		}
+	}
+}
 
-	dirName = dirName[0 .. -2]
-
-	dirName.replace('/' as char, ':' as char)
-} as String[]
+apply plugin: "com.liferay.settings.plugin"

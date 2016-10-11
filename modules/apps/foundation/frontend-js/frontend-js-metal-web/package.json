@@ -1,7 +1,8 @@
 {
-	"dependencies": {
-		"metal-components": "metal/metal-components#7c748624750e27bfb467bc9a23ee5ca8f939ca09"
+	"devDependencies": {
+		"liferay-module-config-generator": "^1.1.10",
+		"metal-cli": "^2.0.2"
 	},
 	"name": "frontend-js-metal-web",
-	"version": "1.0.6"
+	"version": "1.0.11"
 }

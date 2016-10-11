@@ -69,7 +69,9 @@ public class BookmarksFolderLocalServiceImpl
 		// Folder
 
 		User user = userPersistence.findByPrimaryKey(userId);
+
 		long groupId = serviceContext.getScopeGroupId();
+
 		parentFolderId = getParentFolderId(groupId, parentFolderId);
 
 		validate(name);
@@ -599,7 +601,7 @@ public class BookmarksFolderLocalServiceImpl
 			userId, folder.getGroupId(), folder.getCreateDate(),
 			folder.getModifiedDate(), BookmarksFolder.class.getName(),
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
-			assetTagNames, true, true, null, null, null,
+			assetTagNames, true, true, null, null, folder.getCreateDate(), null,
 			ContentTypes.TEXT_PLAIN, folder.getName(), folder.getDescription(),
 			null, null, null, 0, 0, priority);
 
@@ -609,7 +611,7 @@ public class BookmarksFolderLocalServiceImpl
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #updateFolder(long, long,
+	 * @deprecated As of 1.0.0, replaced by {@link #updateFolder(long, long,
 	 *             long, String, String, ServiceContext)} and {@link
 	 *             #mergeFolders(long, long)}
 	 */
@@ -712,7 +714,7 @@ public class BookmarksFolderLocalServiceImpl
 				BookmarksFolder.class.getName(), folder.getFolderId(), false);
 		}
 
-		// Index
+		// Indexer
 
 		Indexer<BookmarksFolder> indexer =
 			IndexerRegistryUtil.nullSafeGetIndexer(BookmarksFolder.class);
@@ -887,7 +889,7 @@ public class BookmarksFolderLocalServiceImpl
 					BookmarksFolder.class.getName(), folder.getFolderId(),
 					false);
 
-				// Index
+				// Indexer
 
 				Indexer<BookmarksFolder> indexer =
 					IndexerRegistryUtil.nullSafeGetIndexer(
@@ -992,7 +994,7 @@ public class BookmarksFolderLocalServiceImpl
 					BookmarksFolder.class.getName(), folder.getFolderId(),
 					true);
 
-				// Index
+				// Indexer
 
 				Indexer<BookmarksFolder> indexer =
 					IndexerRegistryUtil.nullSafeGetIndexer(

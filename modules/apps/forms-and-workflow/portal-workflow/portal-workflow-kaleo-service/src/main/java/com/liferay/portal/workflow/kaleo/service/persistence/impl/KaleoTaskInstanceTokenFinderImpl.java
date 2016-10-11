@@ -225,29 +225,29 @@ public class KaleoTaskInstanceTokenFinderImpl
 				sql,
 				getDueDateGT(
 					kaleoTaskInstanceTokenQuery,
-					(ArrayUtil.isEmpty(
+					ArrayUtil.isEmpty(
 						kaleoTaskInstanceTokenQuery.getAssetPrimaryKeys()) &&
 					ArrayUtil.isEmpty(
-						kaleoTaskInstanceTokenQuery.getAssetTypes()))));
+						kaleoTaskInstanceTokenQuery.getAssetTypes())));
 			sql = CustomSQLUtil.appendCriteria(
 				sql,
 				getDueDateLT(
 					kaleoTaskInstanceTokenQuery,
-					(ArrayUtil.isEmpty(
+					ArrayUtil.isEmpty(
 						kaleoTaskInstanceTokenQuery.getAssetPrimaryKeys()) &&
 					 ArrayUtil.isEmpty(
 						 kaleoTaskInstanceTokenQuery.getAssetTypes()) &&
-					 (kaleoTaskInstanceTokenQuery.getDueDateGT() == null))));
+					 (kaleoTaskInstanceTokenQuery.getDueDateGT() == null)));
 			sql = CustomSQLUtil.appendCriteria(
 				sql,
 				getTaskName(
 					kaleoTaskInstanceTokenQuery,
-					(ArrayUtil.isEmpty(
+					ArrayUtil.isEmpty(
 						kaleoTaskInstanceTokenQuery.getAssetPrimaryKeys()) &&
 					 ArrayUtil.isEmpty(
 						 kaleoTaskInstanceTokenQuery.getAssetTypes()) &&
 					 (kaleoTaskInstanceTokenQuery.getDueDateGT() == null) &&
-					 (kaleoTaskInstanceTokenQuery.getDueDateLT() == null))));
+					 (kaleoTaskInstanceTokenQuery.getDueDateLT() == null)));
 			sql = CustomSQLUtil.appendCriteria(sql, ")");
 
 			sql = CustomSQLUtil.replaceAndOperator(
@@ -272,6 +272,10 @@ public class KaleoTaskInstanceTokenFinderImpl
 				"DISTINCT KaleoTaskInstanceToken.kaleoTaskInstanceTokenId");
 
 			for (String orderByField : orderByFields) {
+				if (orderByField.equals("kaleoTaskInstanceTokenId")) {
+					continue;
+				}
+
 				sb.append(", ");
 				sb.append(_ORDER_BY_ENTITY_ALIAS);
 				sb.append(orderByField);

@@ -42,19 +42,23 @@ import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.SortFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.exportimport.UserGroupImportTransactionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.UserGroupLocalServiceBaseImpl;
+import com.liferay.portal.service.persistence.constants.UserGroupFinderConstants;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
@@ -76,32 +80,6 @@ import java.util.Set;
  * @author Charles May
  */
 public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
-
-	/**
-	 * Adds the user groups to the group.
-	 *
-	 * @param groupId the primary key of the group
-	 * @param userGroupIds the primary keys of the user groups
-	 */
-	@Override
-	public void addGroupUserGroups(long groupId, long[] userGroupIds) {
-		groupPersistence.addUserGroups(groupId, userGroupIds);
-
-		PermissionCacheUtil.clearCache();
-	}
-
-	/**
-	 * Adds the user groups to the team.
-	 *
-	 * @param teamId the primary key of the team
-	 * @param userGroupIds the primary keys of the user groups
-	 */
-	@Override
-	public void addTeamUserGroups(long teamId, long[] userGroupIds) {
-		teamPersistence.addUserGroups(teamId, userGroupIds);
-
-		PermissionCacheUtil.clearCache();
-	}
 
 	/**
 	 * Adds a user group.
@@ -206,19 +184,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		indexer.reindex(userGroup);
 
 		return userGroup;
-	}
-
-	/**
-	 * Clears all associations between the user and its user groups and clears
-	 * the permissions cache.
-	 *
-	 * @param userId the primary key of the user
-	 */
-	@Override
-	public void clearUserUserGroups(long userId) {
-		userPersistence.clearUserGroups(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -333,11 +298,13 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	public UserGroup deleteUserGroup(UserGroup userGroup)
 		throws PortalException {
 
-		int count = userLocalService.getUserGroupUsersCount(
-			userGroup.getUserGroupId(), WorkflowConstants.STATUS_APPROVED);
+		if (!CompanyThreadLocal.isDeleteInProcess()) {
+			int count = userLocalService.getUserGroupUsersCount(
+				userGroup.getUserGroupId(), WorkflowConstants.STATUS_APPROVED);
 
-		if (count > 0) {
-			throw new RequiredUserGroupException();
+			if (count > 0) {
+				throw new RequiredUserGroupException();
+			}
 		}
 
 		// Expando
@@ -364,10 +331,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		// User group
 
 		userGroupPersistence.remove(userGroup);
-
-		// Permission cache
-
-		PermissionCacheUtil.clearCache();
 
 		return userGroup;
 	}
@@ -498,8 +461,27 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		long companyId, String keywords, LinkedHashMap<String, Object> params,
 		int start, int end, OrderByComparator<UserGroup> obc) {
 
-		return userGroupFinder.filterFindByKeywords(
-			companyId, keywords, params, start, end, obc);
+		if (isUseCustomSQL(params)) {
+			return userGroupFinder.filterFindByKeywords(
+				companyId, keywords, params, start, end, obc);
+		}
+
+		String orderByType = StringPool.BLANK;
+
+		if (obc.isAscending()) {
+			orderByType = "asc";
+		}
+
+		Sort sort = SortFactoryUtil.getSort(
+			UserGroup.class, obc.getOrderBy(), orderByType);
+
+		try {
+			return UsersAdminUtil.getUserGroups(
+				search(companyId, keywords, params, start, end, sort));
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
 	}
 
 	/**
@@ -592,8 +574,30 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		LinkedHashMap<String, Object> params, boolean andOperator, int start,
 		int end, OrderByComparator<UserGroup> obc) {
 
-		return userGroupFinder.filterFindByC_N_D(
-			companyId, name, description, params, andOperator, start, end, obc);
+		if (isUseCustomSQL(params)) {
+			return userGroupFinder.filterFindByC_N_D(
+				companyId, name, description, params, andOperator, start, end,
+				obc);
+		}
+
+		String orderByType = StringPool.BLANK;
+
+		if (obc.isAscending()) {
+			orderByType = "asc";
+		}
+
+		Sort sort = SortFactoryUtil.getSort(
+			UserGroup.class, obc.getOrderBy(), orderByType);
+
+		try {
+			return UsersAdminUtil.getUserGroups(
+				search(
+					companyId, name, description, params, andOperator, start,
+					end, sort));
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
 	}
 
 	/**
@@ -664,13 +668,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	public int searchCount(
 		long companyId, String keywords, LinkedHashMap<String, Object> params) {
 
-		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			UserGroup.class);
-
-		if (!indexer.isIndexerEnabled() ||
-			!PropsValues.USER_GROUPS_SEARCH_WITH_INDEX ||
-			isUseCustomSQL(params)) {
-
+		if (isUseCustomSQL(params)) {
 			return userGroupFinder.filterCountByKeywords(
 				companyId, keywords, params);
 		}
@@ -695,6 +693,9 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 			SearchContext searchContext = buildSearchContext(
 				companyId, name, description, params, andOperator,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+
+			Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+				UserGroup.class);
 
 			return (int)indexer.searchCount(searchContext);
 		}
@@ -723,13 +724,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		long companyId, String name, String description,
 		LinkedHashMap<String, Object> params, boolean andOperator) {
 
-		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-			UserGroup.class);
-
-		if (!indexer.isIndexerEnabled() ||
-			!PropsValues.USER_GROUPS_SEARCH_WITH_INDEX ||
-			isUseCustomSQL(params)) {
-
+		if (isUseCustomSQL(params)) {
 			return userGroupFinder.filterCountByC_N_D(
 				companyId, name, description, params, andOperator);
 		}
@@ -738,6 +733,9 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 			SearchContext searchContext = buildSearchContext(
 				companyId, name, description, params, true, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null);
+
+			Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+				UserGroup.class);
 
 			return (int)indexer.searchCount(searchContext);
 		}
@@ -825,8 +823,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		User user = userLocalService.fetchUser(userId);
 
 		indexer.reindex(user);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -847,8 +843,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 			userGroupIds, groupId);
 
 		groupPersistence.removeUserGroups(groupId, userGroupIds);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	/**
@@ -860,8 +854,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	@Override
 	public void unsetTeamUserGroups(long teamId, long[] userGroupIds) {
 		teamPersistence.removeUserGroups(teamId, userGroupIds);
-
-		PermissionCacheUtil.clearCache();
 	}
 
 	/**
@@ -1127,11 +1119,23 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	}
 
 	protected boolean isUseCustomSQL(LinkedHashMap<String, Object> params) {
-		if (MapUtil.isEmpty(params)) {
+		Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+			UserGroup.class);
+
+		if (indexer.isIndexerEnabled() &&
+			PropsValues.USER_GROUPS_SEARCH_WITH_INDEX &&
+			MapUtil.isEmpty(params)) {
+
 			return false;
 		}
 
-		return true;
+		for (String key : params.keySet()) {
+			if (ArrayUtil.contains(UserGroupFinderConstants.PARAM_KEYS, key)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	protected void validate(long userGroupId, long companyId, String name)

@@ -66,8 +66,11 @@ import javax.sql.DataSource;
  * @author Brian Wing Shun Chan
  * @see com.liferay.portlet.blogs.service.impl.BlogsEntryServiceImpl
  * @see com.liferay.blogs.kernel.service.BlogsEntryServiceUtil
+ * @deprecated As of 7.0.0, replaced by {@link
+            com.liferay.blogs.service.impl.BlogsEntryServiceImpl}
  * @generated
  */
+@Deprecated
 public abstract class BlogsEntryServiceBaseImpl extends BaseServiceImpl
 	implements BlogsEntryService, IdentifiableOSGiService {
 	/*
@@ -1046,7 +1049,7 @@ public abstract class BlogsEntryServiceBaseImpl extends BaseServiceImpl
 
 	@BeanReference(type = com.liferay.blogs.kernel.service.BlogsEntryLocalService.class)
 	protected com.liferay.blogs.kernel.service.BlogsEntryLocalService blogsEntryLocalService;
-	@BeanReference(type = com.liferay.blogs.kernel.service.BlogsEntryService.class)
+	@BeanReference(type = BlogsEntryService.class)
 	protected BlogsEntryService blogsEntryService;
 	@BeanReference(type = BlogsEntryPersistence.class)
 	protected BlogsEntryPersistence blogsEntryPersistence;

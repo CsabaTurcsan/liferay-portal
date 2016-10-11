@@ -20,6 +20,10 @@ import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.DuplicateRoleException;
 import com.liferay.portal.kernel.exception.NoSuchRoleException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -119,7 +123,9 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		// Role
 
 		User user = userPersistence.findByPrimaryKey(userId);
+
 		className = GetterUtil.getString(className);
+
 		long classNameId = classNameLocalService.getClassNameId(className);
 
 		long roleId = counterLocalService.increment();
@@ -177,6 +183,54 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	}
 
 	/**
+	 * Adds the role to the user. The user is reindexed after the role is added.
+	 *
+	 * @param userId the primary key of the user
+	 * @param roleId the primary key of the role
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#addRole(
+	 *        long, long)
+	 */
+	@Override
+	public void addUserRole(long userId, long roleId) throws PortalException {
+		userPersistence.addRole(userId, roleId);
+
+		reindex(userId);
+	}
+
+	/**
+	 * Adds the role to the user. The user is reindexed after the role is added.
+	 *
+	 * @param userId the primary key of the user
+	 * @param role the role
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#addRole(
+	 *        long, Role)
+	 */
+	@Override
+	public void addUserRole(long userId, Role role) throws PortalException {
+		userPersistence.addRole(userId, role);
+
+		reindex(userId);
+	}
+
+	/**
+	 * Adds the roles to the user. The user is reindexed after the roles are
+	 * added.
+	 *
+	 * @param userId the primary key of the user
+	 * @param roles the roles
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#addRoles(
+	 *        long, List)
+	 */
+	@Override
+	public void addUserRoles(long userId, List<Role> roles)
+		throws PortalException {
+
+		userPersistence.addRoles(userId, roles);
+
+		reindex(userId);
+	}
+
+	/**
 	 * Adds the roles to the user. The user is reindexed after the roles are
 	 * added.
 	 *
@@ -192,8 +246,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		userPersistence.addRoles(userId, roleIds);
 
 		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -328,6 +380,21 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	}
 
 	/**
+	 * Removes every role from the user. The user is reindexed after the roles
+	 * are removed.
+	 *
+	 * @param userId the primary key of the user
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#clearRoles(
+	 *        long)
+	 */
+	@Override
+	public void clearUserRoles(long userId) throws PortalException {
+		userPersistence.clearRoles(userId);
+
+		reindex(userId);
+	}
+
+	/**
 	 * Deletes the role with the primary key and its associated permissions.
 	 *
 	 * @param  roleId the primary key of the role
@@ -413,11 +480,77 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 
 		expandoRowLocalService.deleteRows(role.getRoleId());
 
-		// Permission cache
-
-		PermissionCacheUtil.clearCache();
-
 		return role;
+	}
+
+	/**
+	 * Removes the role from the user. The user is reindexed after the role is
+	 * removed.
+	 *
+	 * @param userId the primary key of the user
+	 * @param roleId the primary key of the role
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#removeRole(
+	 *        long, long)
+	 */
+	@Override
+	public void deleteUserRole(long userId, long roleId)
+		throws PortalException {
+
+		userPersistence.removeRole(userId, roleId);
+
+		reindex(userId);
+	}
+
+	/**
+	 * Removes the role from the user. The user is reindexed after the role is
+	 * removed.
+	 *
+	 * @param userId the primary key of the user
+	 * @param role the role
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#removeRole(
+	 *        long, Role)
+	 */
+	@Override
+	public void deleteUserRole(long userId, Role role) throws PortalException {
+		userPersistence.removeRole(userId, role);
+
+		reindex(userId);
+	}
+
+	/**
+	 * Removes the roles from the user. The user is reindexed after the roles
+	 * are removed.
+	 *
+	 * @param userId the primary key of the user
+	 * @param roles the roles
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#removeRoles(
+	 *        long, List)
+	 */
+	@Override
+	public void deleteUserRoles(long userId, List<Role> roles)
+		throws PortalException {
+
+		userPersistence.removeRoles(userId, roles);
+
+		reindex(userId);
+	}
+
+	/**
+	 * Removes the roles from the user. The user is reindexed after the roles
+	 * are removed.
+	 *
+	 * @param userId the primary key of the user
+	 * @param roleIds the primary keys of the roles
+	 * @see   com.liferay.portal.kernel.service.persistence.UserPersistence#removeRoles(
+	 *        long, long[])
+	 */
+	@Override
+	public void deleteUserRoles(long userId, long[] roleIds)
+		throws PortalException {
+
+		userPersistence.removeRoles(userId, roleIds);
+
+		reindex(userId);
 	}
 
 	/**
@@ -445,6 +578,64 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		}
 
 		return roleLocalService.loadFetchRole(companyId, name);
+	}
+
+	@Override
+	public int getAssigneesTotal(long roleId) throws PortalException {
+		int assigneesTotal = 0;
+
+		Role role = getRole(roleId);
+
+		int type = role.getType();
+
+		if (type == RoleConstants.TYPE_REGULAR) {
+			assigneesTotal += groupLocalService.getRoleGroupsCount(roleId);
+			assigneesTotal += userLocalService.getRoleUsersCount(roleId);
+		}
+
+		if (type == RoleConstants.TYPE_SITE) {
+			DynamicQuery userGroupGroupRoleDynamicQuery =
+				userGroupGroupRoleLocalService.dynamicQuery();
+
+			Property property = PropertyFactoryUtil.forName(
+				"primaryKey.roleId");
+
+			userGroupGroupRoleDynamicQuery.add(property.eq(roleId));
+
+			userGroupGroupRoleDynamicQuery.setProjection(
+				ProjectionFactoryUtil.countDistinct("primaryKey.userGroupId"));
+
+			List<?> list = userGroupRoleLocalService.dynamicQuery(
+				userGroupGroupRoleDynamicQuery);
+
+			Long count = (Long)list.get(0);
+
+			assigneesTotal += count.intValue();
+		}
+
+		if ((type == RoleConstants.TYPE_SITE) ||
+			(type == RoleConstants.TYPE_ORGANIZATION)) {
+
+			DynamicQuery userGroupRoleDynamicQuery =
+				userGroupRoleLocalService.dynamicQuery();
+
+			Property property = PropertyFactoryUtil.forName(
+				"primaryKey.roleId");
+
+			userGroupRoleDynamicQuery.add(property.eq(roleId));
+
+			userGroupRoleDynamicQuery.setProjection(
+				ProjectionFactoryUtil.countDistinct("primaryKey.userId"));
+
+			List<?> list = userGroupRoleLocalService.dynamicQuery(
+				userGroupRoleDynamicQuery);
+
+			Long count = (Long)list.get(0);
+
+			assigneesTotal += count.intValue();
+		}
+
+		return assigneesTotal;
 	}
 
 	/**
@@ -821,8 +1012,8 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 * @param  userId the primary key of the user
 	 * @param  groups the groups (optionally <code>null</code>)
 	 * @return the union of all the user's roles within the groups
-	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(long,
-	 *         List)
+	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(
+	 *         long, List)
 	 */
 	@Override
 	public List<Role> getUserRelatedRoles(long userId, List<Group> groups) {
@@ -839,8 +1030,8 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 * @param  userId the primary key of the user
 	 * @param  groupId the primary key of the group
 	 * @return the user's roles within the group
-	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(long,
-	 *         long)
+	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(
+	 *         long, long)
 	 */
 	@Override
 	public List<Role> getUserRelatedRoles(long userId, long groupId) {
@@ -853,8 +1044,8 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 * @param  userId the primary key of the user
 	 * @param  groupIds the primary keys of the groups
 	 * @return the union of all the user's roles within the groups
-	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(long,
-	 *         long[])
+	 * @see    com.liferay.portal.kernel.service.persistence.RoleFinder#findByU_G(
+	 *         long, long[])
 	 */
 	@Override
 	public List<Role> getUserRelatedRoles(long userId, long[] groupIds) {
@@ -1239,8 +1430,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		userPersistence.setRoles(userId, roleIds);
 
 		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**
@@ -1259,8 +1448,6 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 		userPersistence.removeRoles(userId, roleIds);
 
 		reindex(userId);
-
-		PermissionCacheUtil.clearCache(userId);
 	}
 
 	/**

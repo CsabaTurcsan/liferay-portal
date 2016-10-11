@@ -49,7 +49,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 /**
  * @author André de Oliveira
  */
-@PrepareOnlyThisForTest({SearchEngineHelperUtil.class})
+@PrepareOnlyThisForTest(SearchEngineHelperUtil.class)
 @RunWith(PowerMockRunner.class)
 public class BaseIndexerGetFullQueryTest extends PowerMockito {
 
@@ -178,24 +178,21 @@ public class BaseIndexerGetFullQueryTest extends PowerMockito {
 
 		stub(
 			method(
-				SearchEngineHelperUtil.class, "getDefaultSearchEngineId"
-			)
+				SearchEngineHelperUtil.class, "getDefaultSearchEngineId")
 		).toReturn(
 			SearchEngineHelper.SYSTEM_ENGINE_ID
 		);
 
 		stub(
 			method(
-				SearchEngineHelperUtil.class, "getEntryClassNames"
-			)
+				SearchEngineHelperUtil.class, "getEntryClassNames")
 		).toReturn(
 			new String[0]
 		);
 
 		stub(
 			method(
-				SearchEngineHelperUtil.class, "getSearchEngine", String.class
-			)
+				SearchEngineHelperUtil.class, "getSearchEngine", String.class)
 		).toReturn(
 			new BaseSearchEngine()
 		);

@@ -1,0 +1,9 @@
+;
+; Do not manually edit this file.
+;
+[subrepo]
+	cmdver = liferay
+	commit = 460f0de95de5a1291e90d8c743658205a14d3ff4
+	mode = push
+	parent = 94f272561f1796b4e2c3b3f54197a1dffd66e2ac
+	remote = git@github.com:liferay/com-liferay-portal-search.git

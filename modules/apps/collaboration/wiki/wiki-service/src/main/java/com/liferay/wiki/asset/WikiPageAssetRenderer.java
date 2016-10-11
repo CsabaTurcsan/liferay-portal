@@ -110,6 +110,10 @@ public class WikiPageAssetRenderer
 		}
 	}
 
+	/**
+	 * @deprecated As of 1.2.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public Date getDisplayDate() {
 		return _page.getModifiedDate();

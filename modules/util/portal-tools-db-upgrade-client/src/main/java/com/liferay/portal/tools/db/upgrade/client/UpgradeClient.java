@@ -14,6 +14,8 @@
 
 package com.liferay.portal.tools.db.upgrade.client;
 
+import com.liferay.portal.tools.db.upgrade.client.util.StringUtil;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -68,8 +70,8 @@ public class UpgradeClient {
 
 			String jvmOpts = null;
 
-			if (commandLine.hasOption("jvmOpts")) {
-				jvmOpts = commandLine.getOptionValue("jvmOpts");
+			if (commandLine.hasOption("jvm-opts")) {
+				jvmOpts = commandLine.getOptionValue("jvm-opts");
 			}
 			else {
 				jvmOpts =
@@ -79,8 +81,8 @@ public class UpgradeClient {
 
 			File logFile = null;
 
-			if (commandLine.hasOption("logFile")) {
-				logFile = new File(commandLine.getOptionValue("logFile"));
+			if (commandLine.hasOption("log-file")) {
+				logFile = new File(commandLine.getOptionValue("log-file"));
 			}
 			else {
 				logFile = new File("upgrade.log");
@@ -95,7 +97,14 @@ public class UpgradeClient {
 				logFile = new File(logFileName);
 			}
 
-			UpgradeClient upgradeClient = new UpgradeClient(jvmOpts, logFile);
+			boolean shell = false;
+
+			if (commandLine.hasOption("shell")) {
+				shell = true;
+			}
+
+			UpgradeClient upgradeClient = new UpgradeClient(
+				jvmOpts, logFile, shell);
 
 			upgradeClient.upgrade();
 		}
@@ -111,16 +120,19 @@ public class UpgradeClient {
 		}
 	}
 
-	public UpgradeClient(String jvmOpts, File logFile) throws IOException {
+	public UpgradeClient(String jvmOpts, File logFile, boolean shell)
+		throws IOException {
+
 		_jvmOpts = jvmOpts;
 		_logFile = logFile;
+		_shell = shell;
 
 		_appServerPropertiesFile = new File("app-server.properties");
 
 		_appServerProperties = _readProperties(_appServerPropertiesFile);
 
 		_portalUpgradeDatabasePropertiesFile = new File(
-			"portal-upgrade-datasource.properties");
+			"portal-upgrade-database.properties");
 
 		_portalUpgradeDatabaseProperties = _readProperties(
 			_portalUpgradeDatabasePropertiesFile);
@@ -153,6 +165,9 @@ public class UpgradeClient {
 		commands.add(_getClassPath());
 		commands.addAll(Arrays.asList(_jvmOpts.split(" ")));
 		commands.add("-Dexternal-properties=portal-upgrade.properties");
+		commands.add(
+			"-Dserver.detector.server.id=" +
+				_appServer.getServerDetectorServerId());
 		commands.add("com.liferay.portal.tools.DBUpgrader");
 
 		processBuilder.command(commands);
@@ -186,10 +201,8 @@ public class UpgradeClient {
 			ioe.printStackTrace();
 		}
 
-		boolean upgrading = true;
-
-		while (upgrading) {
-			try (GogoTelnetClient gogoTelnetClient = new GogoTelnetClient()) {
+		try (GogoTelnetClient gogoTelnetClient = new GogoTelnetClient()) {
+			if (_shell || !_isFinished(gogoTelnetClient)) {
 				System.out.println("You are connected to Gogo shell.");
 
 				_printHelp();
@@ -209,38 +222,10 @@ public class UpgradeClient {
 						System.out.println(gogoTelnetClient.send(line));
 					}
 				}
-
-				System.out.print(
-					"Checking to see if all upgrades steps have completed...");
-
-				String upgradeSteps = gogoTelnetClient.send(
-					"upgrade:list | grep Registered | grep step");
-
-				upgrading = upgradeSteps.contains("true");
-
-				if (upgrading) {
-					System.out.println(
-						" one of your upgrades is still running or failed.");
-					System.out.println("Are you sure you want to exit (y/N)?");
-
-					_consoleReader.setPrompt("");
-
-					String response = _consoleReader.readLine();
-
-					if (response.equals("y")) {
-						upgrading = false;
-					}
-				}
-				else {
-					System.out.println(" done.");
-				}
-			}
-			catch (Exception e) {
-				upgrading = false;
 			}
 		}
-
-		System.out.println("Exiting Gogo shell.");
+		catch (Exception e) {
+		}
 
 		_close(process.getErrorStream());
 		_close(process.getInputStream());
@@ -269,10 +254,13 @@ public class UpgradeClient {
 			new Option("h", "help", false, "Print this message."));
 		options.addOption(
 			new Option(
-				"j", "jvmOpts", true,
+				"j", "jvm-opts", true,
 				"Set the JVM_OPTS used for the upgrade."));
 		options.addOption(
-			new Option("l", "logFile", true, "Set the name of log file."));
+			new Option("l", "log-file", true, "Set the name of log file."));
+		options.addOption(
+			new Option(
+				"s", "shell", false, "Automatically connect to GoGo shell."));
 
 		return options;
 	}
@@ -295,6 +283,14 @@ public class UpgradeClient {
 		}
 	}
 
+	private void _appendClassPath(StringBuilder sb, List<File> dirs)
+		throws IOException {
+
+		for (File dir : dirs) {
+			_appendClassPath(sb, dir);
+		}
+	}
+
 	private void _close(Closeable closeable) throws IOException {
 		closeable.close();
 	}
@@ -311,47 +307,93 @@ public class UpgradeClient {
 
 		_appendClassPath(sb, new File("lib"));
 		_appendClassPath(sb, new File("."));
-		_appendClassPath(sb, new File(_appServer.getDir(), "bin"));
 		_appendClassPath(sb, _appServer.getGlobalLibDir());
+		_appendClassPath(sb, _appServer.getExtraLibDirs());
 
 		File portalClassesDir = _appServer.getPortalClassesDir();
 
 		sb.append(portalClassesDir.getCanonicalPath());
+
+		sb.append(File.pathSeparator);
 
 		_appendClassPath(sb, _appServer.getPortalLibDir());
 
 		return sb.toString();
 	}
 
-	private String _getRelativePath(File baseFile, File pathFile) {
-		return _getRelativePath(baseFile.toPath(), pathFile.toPath());
+	private String _getRelativeFileName(File baseFile, File pathFile) {
+		return _getRelativeFileName(baseFile.toPath(), pathFile.toPath());
 	}
 
-	private String _getRelativePath(Path basePath, Path path) {
+	private String _getRelativeFileName(Path basePath, Path path) {
 		Path relativePath = basePath.relativize(path);
 
 		return relativePath.toString();
 	}
 
+	private List<String> _getRelativeFileNames(
+		File baseFile, List<File> pathFiles) {
+
+		List<String> relativeFileNames = new ArrayList<>(pathFiles.size());
+
+		for (File pathFile : pathFiles) {
+			relativeFileNames.add(
+				_getRelativeFileName(baseFile.toPath(), pathFile.toPath()));
+		}
+
+		return relativeFileNames;
+	}
+
+	private boolean _isFinished(GogoTelnetClient gogoTelnetClient)
+		throws IOException {
+
+		System.out.print("Checking to see if all upgrades have completed...");
+
+		String upgradeCheck = gogoTelnetClient.send("upgrade:check");
+
+		String upgradeSteps = gogoTelnetClient.send(
+			"upgrade:list | grep Registered | grep step");
+
+		if (!upgradeCheck.equals("upgrade:check") ||
+			upgradeSteps.contains("true")) {
+
+			System.out.println(
+				" your upgrades have failed, have not started, or are still " +
+					"running.");
+
+			return false;
+		}
+		else {
+			System.out.println(" done.");
+
+			return true;
+		}
+	}
+
 	private void _printHelp() {
 		System.out.println("\nUpgrade commands:");
-		System.out.println("exit or quit - exit Gogo Shell");
-		System.out.println("upgrade:help - show upgrade commands");
+		System.out.println("exit or quit - Exit Gogo Shell");
 		System.out.println(
-			"upgrade:execute {module_name} - Execute upgrade for that module");
-		System.out.println("upgrade:list - List all registered upgrades");
+			"upgrade:check - List upgrades that have failed, have not " +
+				"started, or are still running");
 		System.out.println(
-			"upgrade:list {module_name} - " +
-				"List the upgrade steps required for that module");
+			"upgrade:execute {module_name} - Execute upgrade for specified " +
+				"module");
+		System.out.println("upgrade:help - Show upgrade commands");
+		System.out.println("upgrade:list - List registered upgrades");
 		System.out.println(
-			"upgrade:list | grep Registered - " +
-				"List upgrades that are registered and what version they are " +
-					"at");
+			"upgrade:list {module_name} - List upgrade steps required for " +
+				"specified module");
 		System.out.println(
-			"upgrade:list | grep Registered | grep steps - " +
-				"List upgrades in progress");
-		System.out.println("verify:execute {module_name} - execute a verifier");
-		System.out.println("verify:list - List all registered verifiers");
+			"upgrade:list | grep Registered - List registered upgrades and " +
+				"their current version");
+		System.out.println(
+			"upgrade:list | grep Registered | grep steps - List upgrades in " +
+				"progress");
+		System.out.println(
+			"verify:execute {module_name} - Execute verifier for specified " +
+				"module");
+		System.out.println("verify:list - List registered verifiers");
 	}
 
 	private Properties _readProperties(File file) {
@@ -383,7 +425,10 @@ public class UpgradeClient {
 
 			while (enumeration.hasMoreElements()) {
 				String key = (String)enumeration.nextElement();
+
 				String value = properties.getProperty(key);
+
+				value = value.replace('\\', '/');
 
 				printWriter.println(key + "=" + value);
 			}
@@ -391,7 +436,8 @@ public class UpgradeClient {
 	}
 
 	private void _verifyAppServerProperties() throws IOException {
-		String value = _appServerProperties.getProperty("dir");
+		String value = _appServerProperties.getProperty(
+			"server.detector.server.id");
 
 		if ((value == null) || value.isEmpty()) {
 			String response = null;
@@ -436,6 +482,16 @@ public class UpgradeClient {
 			}
 
 			System.out.println(
+				"Please enter your extra library directories (" +
+					_appServer.getExtraLibDirNames() + "): ");
+
+			response = _consoleReader.readLine();
+
+			if (!response.isEmpty()) {
+				_appServer.setExtraLibDirNames(response);
+			}
+
+			System.out.println(
 				"Please enter your global library directory (" + globalLibDir +
 					"): ");
 
@@ -456,14 +512,24 @@ public class UpgradeClient {
 
 			_appServerProperties.setProperty("dir", dir.getCanonicalPath());
 			_appServerProperties.setProperty(
-				"global.dir.lib", _getRelativePath(dir, globalLibDir));
+				"extra.lib.dirs",
+				StringUtil.join(
+					_getRelativeFileNames(dir, _appServer.getExtraLibDirs()),
+					','));
 			_appServerProperties.setProperty(
-				"portal.dir", _getRelativePath(dir, portalDir));
+				"global.lib.dir", _getRelativeFileName(dir, globalLibDir));
+			_appServerProperties.setProperty(
+				"portal.dir", _getRelativeFileName(dir, portalDir));
+			_appServerProperties.setProperty(
+				"server.detector.server.id",
+				_appServer.getServerDetectorServerId());
 		}
 		else {
 			_appServer = new AppServer(
-				value, _appServerProperties.getProperty("global.dir.lib"),
-				_appServerProperties.getProperty("portal.dir"));
+				_appServerProperties.getProperty("dir"),
+				_appServerProperties.getProperty("extra.lib.dirs"),
+				_appServerProperties.getProperty("global.lib.dir"),
+				_appServerProperties.getProperty("portal.dir"), value);
 		}
 	}
 
@@ -502,17 +568,7 @@ public class UpgradeClient {
 			}
 
 			System.out.println(
-				"Please enter your database host (" + dataSource.getHost() +
-					"): ");
-
-			response = _consoleReader.readLine();
-
-			if (!response.isEmpty()) {
-				dataSource.setHost(response);
-			}
-
-			System.out.println(
-				"Please enter your database JDBC driver class name(" +
+				"Please enter your database JDBC driver class name (" +
 					dataSource.getClassName() + "): ");
 
 			response = _consoleReader.readLine();
@@ -531,6 +587,16 @@ public class UpgradeClient {
 				dataSource.setProtocol(response);
 			}
 
+			System.out.println(
+				"Please enter your database host (" + dataSource.getHost() +
+					"): ");
+
+			response = _consoleReader.readLine();
+
+			if (!response.isEmpty()) {
+				dataSource.setHost(response);
+			}
+
 			String port = null;
 
 			if (dataSource.getPort() > 0) {
@@ -538,16 +604,6 @@ public class UpgradeClient {
 			}
 			else {
 				port = "none";
-			}
-
-			System.out.println(
-				"Please enter your database name (" +
-					dataSource.getDatabaseName() + "): ");
-
-			response = _consoleReader.readLine();
-
-			if (!response.isEmpty()) {
-				dataSource.setDatabaseName(response);
 			}
 
 			System.out.println(
@@ -564,13 +620,23 @@ public class UpgradeClient {
 				}
 			}
 
-			System.out.println("Please enter your database password: ");
+			System.out.println(
+				"Please enter your database name (" +
+					dataSource.getDatabaseName() + "): ");
 
-			String password = _consoleReader.readLine();
+			response = _consoleReader.readLine();
+
+			if (!response.isEmpty()) {
+				dataSource.setDatabaseName(response);
+			}
 
 			System.out.println("Please enter your database username: ");
 
 			String username = _consoleReader.readLine();
+
+			System.out.println("Please enter your database password: ");
+
+			String password = _consoleReader.readLine('*');
 
 			_portalUpgradeDatabaseProperties.setProperty(
 				"jdbc.default.driverClassName", dataSource.getClassName());
@@ -587,12 +653,12 @@ public class UpgradeClient {
 		String value = _portalUpgradeExtProperties.getProperty("liferay.home");
 
 		if ((value == null) || value.isEmpty()) {
-			System.out.println("Please enter your Liferay home (../): ");
+			System.out.println("Please enter your Liferay home (../../): ");
 
 			String response = _consoleReader.readLine();
 
 			if (response.isEmpty()) {
-				response = "../";
+				response = "../../";
 			}
 
 			File liferayHome = new File(response);
@@ -641,5 +707,6 @@ public class UpgradeClient {
 	private final File _portalUpgradeDatabasePropertiesFile;
 	private final Properties _portalUpgradeExtProperties;
 	private final File _portalUpgradeExtPropertiesFile;
+	private final boolean _shell;
 
 }

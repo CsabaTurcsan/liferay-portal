@@ -33,6 +33,7 @@ import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLTrashService;
 import com.liferay.document.library.kernel.util.DL;
 import com.liferay.document.library.web.constants.DLPortletKeys;
+import com.liferay.document.library.web.internal.util.DLTrashUtil;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lock.DuplicateLockException;
@@ -68,7 +69,6 @@ import com.liferay.portal.kernel.webdav.WebDAVUtil;
 import com.liferay.portal.webdav.LockException;
 import com.liferay.portlet.documentlibrary.webdav.DLFileEntryResourceImpl;
 import com.liferay.portlet.documentlibrary.webdav.DLWebDAVUtil;
-import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.io.File;
 import java.io.InputStream;
@@ -302,7 +302,8 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 				long folderId = folder.getFolderId();
 
 				if ((folder.getModel() instanceof DLFolder) &&
-					TrashUtil.isTrashEnabled(folder.getGroupId())) {
+					DLTrashUtil.isTrashEnabled(
+						folder.getGroupId(), folder.getRepositoryId())) {
 
 					_dlTrashService.moveFolderToTrash(folderId);
 				}
@@ -322,7 +323,8 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 				long fileEntryId = fileEntry.getFileEntryId();
 
 				if ((fileEntry.getModel() instanceof DLFileEntry) &&
-					TrashUtil.isTrashEnabled(fileEntry.getGroupId())) {
+					DLTrashUtil.isTrashEnabled(
+						fileEntry.getGroupId(), fileEntry.getRepositoryId())) {
 
 					_dlTrashService.moveFileEntryToTrash(fileEntryId);
 				}
@@ -353,7 +355,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 			String[] pathArray = webDAVRequest.getPathArray();
 
 			long companyId = webDAVRequest.getCompanyId();
+
 			long parentFolderId = getParentFolderId(companyId, pathArray);
+
 			String name = WebDAVUtil.getResourceName(pathArray);
 
 			if (Validator.isNull(name)) {
@@ -462,7 +466,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 				long companyId = webDAVRequest.getCompanyId();
 				long groupId = webDAVRequest.getGroupId();
 				long parentFolderId = getParentFolderId(companyId, pathArray);
+
 				String title = getTitle(pathArray);
+
 				String extension = FileUtil.getExtension(title);
 
 				String contentType = getContentType(
@@ -612,7 +618,9 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 			Folder folder = (Folder)resource.getModel();
 
 			long companyId = webDAVRequest.getCompanyId();
+
 			long groupId = WebDAVUtil.getGroupId(companyId, destinationArray);
+
 			long folderId = folder.getFolderId();
 			long parentFolderId = getParentFolderId(
 				companyId, destinationArray);
@@ -686,9 +694,11 @@ public class DLWebDAVStorageImpl extends BaseWebDAVStorageImpl {
 			}
 
 			long companyId = webDAVRequest.getCompanyId();
+
 			long groupId = WebDAVUtil.getGroupId(companyId, destinationArray);
 			long newParentFolderId = getParentFolderId(
 				companyId, destinationArray);
+
 			String title = getTitle(destinationArray);
 			String description = fileEntry.getDescription();
 			String changeLog = StringPool.BLANK;

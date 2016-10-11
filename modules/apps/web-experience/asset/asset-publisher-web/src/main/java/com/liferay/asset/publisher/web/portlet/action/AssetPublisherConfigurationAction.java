@@ -20,8 +20,8 @@ import com.liferay.asset.kernel.exception.DuplicateQueryRuleException;
 import com.liferay.asset.kernel.model.AssetQueryRule;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
-import com.liferay.asset.publisher.web.configuration.AssetPublisherWebConfigurationValues;
 import com.liferay.asset.publisher.web.constants.AssetPublisherPortletKeys;
+import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebConfigurationValues;
 import com.liferay.asset.publisher.web.util.AssetPublisherUtil;
 import com.liferay.exportimport.kernel.staging.LayoutStagingUtil;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
@@ -319,9 +319,9 @@ public class AssetPublisherConfigurationAction
 		}
 
 		long defaultAssetClassTypeId = GetterUtil.getLong(
-			anyAssetClassTypeString);
+			anyAssetClassTypeString, -1);
 
-		if (defaultAssetClassTypeId > 0) {
+		if (defaultAssetClassTypeId > -1) {
 			return new String[] {String.valueOf(defaultAssetClassTypeId)};
 		}
 		else {
@@ -457,7 +457,7 @@ public class AssetPublisherConfigurationAction
 			return;
 		}
 
-		String[] newEntries = new String[manualEntries.length -1];
+		String[] newEntries = new String[manualEntries.length - 1];
 
 		int i = 0;
 		int j = 0;
@@ -604,6 +604,7 @@ public class AssetPublisherConfigurationAction
 
 		String[] classNameIds = StringUtil.split(
 			getParameter(actionRequest, "classNameIds"));
+
 		String[] classTypeIds = getClassTypeIds(actionRequest, classNameIds);
 
 		String[] extensions = actionRequest.getParameterValues("extensions");

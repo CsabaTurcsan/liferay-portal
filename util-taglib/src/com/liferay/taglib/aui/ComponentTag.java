@@ -30,7 +30,9 @@ import org.apache.commons.lang.StringUtils;
 /**
  * @author Eduardo Lundgren
  * @author Bruno Basto
+ * @deprecated As of 7.0.0, with no direct replacement
  */
+@Deprecated
 public class ComponentTag extends BaseComponentTag {
 
 	protected boolean isEventAttribute(String key) {
@@ -68,12 +70,14 @@ public class ComponentTag extends BaseComponentTag {
 		Map<String, String> afterEventOptions = new HashMap<>();
 		Map<String, String> onEventOptions = new HashMap<>();
 
-		for (String key : options.keySet()) {
+		for (Map.Entry<String, Object> entry : options.entrySet()) {
+			String key = entry.getKey();
+
 			if (!isValidAttribute(key)) {
 				continue;
 			}
 
-			Object value = options.get(key);
+			Object value = entry.getValue();
 
 			String originalKey = ReservedAttributeUtil.getOriginalName(
 				getName(), key);

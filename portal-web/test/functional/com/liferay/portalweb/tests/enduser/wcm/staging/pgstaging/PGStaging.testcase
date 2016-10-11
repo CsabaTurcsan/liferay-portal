@@ -1,4 +1,5 @@
 <definition component-name="portal-staging">
+	<property name="portal.release" value="true" />
 	<property name="testray.main.component.name" value="Staging" />
 
 	<set-up>
@@ -151,6 +152,8 @@
 		</execute>
 
 		<execute macro="Navigator#gotoStagedView" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
@@ -370,6 +373,31 @@
 
 		<execute macro="Staging#viewPageVariationPG">
 			<var name="pageVariationName" value="Page Variation Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoStagedSitePage">
+			<var name="pageName" value="Staging Test Page" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="SitePageNavigator#gotoEditPage">
+			<var name="page" value="Staging Test Page" />
+		</execute>
+
+		<execute macro="Page#addFriendlyURLLocalizedPG">
+			<var name="friendlyUrlLocalized" value="de_DE" />
+			<var name="localizedFriendlyURL" value="/german" />
+		</execute>
+
+		<execute macro="Page#hideFromNavigationMenu" />
+
+		<execute macro="SitePageNavigator#gotoEditPage">
+			<var name="page" value="Staging Test Page" />
+		</execute>
+
+		<execute macro="Page#viewPageFriendlyURLPG">
+			<var name="friendlyUrlLocalized" value="de_DE" />
+			<var name="pageName" value="german" />
 		</execute>
 	</command>
 
@@ -876,7 +904,7 @@
 			<var name="siteName" value="Organization Name" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="BasePortlet#TITLE" value1="Blogs">
+		<execute function="AssertElementNotPresent" locator1="Portlet#TITLE" value1="Blogs">
 			<var name="key_portletName" value="Blogs" />
 		</execute>
 
@@ -900,7 +928,7 @@
 			<var name="siteName" value="Organization Name" />
 		</execute>
 
-		<execute function="AssertElementPresent" locator1="BasePortlet#TITLE" value1="Blogs">
+		<execute function="AssertElementPresent" locator1="Portlet#TITLE" value1="Blogs">
 			<var name="key_portletName" value="Blogs" />
 		</execute>
 
@@ -999,18 +1027,7 @@
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_BLOGS" />
 			<var name="permissionNavigationValue" value="Blogs" />
 			<var name="roleName" value="Organization User" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
-			<var name="portlet" value="Roles" />
-		</execute>
-
-		<execute macro="Role#removePermissionCP">
-			<var name="permissionDefinitionKey" value="SITE_ADMIN_PAGES_SITE_PAGES_RESOURCE_PERMISSIONS_SITE_MANAGE_PAGES_CHECKBOX" />
-			<var name="permissionDefinitionValue" value="Manage Pages" />
-			<var name="permissionNavigationKey" value="SITE_ADMIN_PAGES_SITE_PAGES" />
-			<var name="permissionNavigationValue" value="Site Pages" />
-			<var name="roleName" value="Organization User" />
+			<var name="roleType" value="Organization" />
 		</execute>
 	</command>
 
@@ -1032,6 +1049,8 @@
 		</execute>
 
 		<execute macro="Navigator#gotoStagedView" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
@@ -1182,6 +1201,8 @@
 
 		<execute macro="Navigator#gotoStagedView" />
 
+		<execute function="Pause" locator1="3000" />
+
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
 		</execute>
@@ -1191,6 +1212,50 @@
 		</execute>
 
 		<execute function="Pause" locator1="5000" />
+	</command>
+
+	<command name="PublishPrivatePage" priority="5">
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Staging" />
+		</execute>
+
+		<execute macro="Staging#activateStagingCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoStagedView" />
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Private Staging Page" />
+			<var name="sitePagePrivacy" value="Private" />
+			<var name="siteScopeSelected" value="true" />
+		</execute>
+
+		<execute macro="Staging#gotoPublishToLive" />
+
+		<execute macro="Staging#configurePublishToLive">
+			<var name="checkPageName" value="Private Pages" />
+		</execute>
+
+		<execute macro="Staging#publishToLive" />
+
+		<execute macro="ProductMenu#gotoPrivatePages" />
+
+		<execute macro="Page#view">
+			<var name="pageName" value="Private Staging Page" />
+		</execute>
 	</command>
 
 	<command name="PublishWCIncludingTextsAndImages" priority="3">
@@ -1253,6 +1318,8 @@
 			<var name="dmDocumentURL" value="${dmDocumentURL}" />
 		</execute>
 
+		<execute macro="PortletEntry#publish" />
+
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
@@ -1294,12 +1361,8 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Portlet#viewPG">
-			<var name="portletName" value="Web Content Display" />
-		</execute>
-
 		<execute macro="WebContent#viewPGViaWCD">
-			<var name="image" value="true" />
+			<var name="imageOnLive" value="true" />
 			<var name="webContentContent" value="Web Content Content" />
 		</execute>
 	</command>
@@ -1321,9 +1384,15 @@
 			<var name="portletName" value="Web Content Display" />
 		</execute>
 
+		<execute function="Pause" locator1="3000" />
+
 		<execute macro="WebContent#addPGViaWCD">
 			<var name="webContentContent" value="Web Content Content" />
 			<var name="webContentTitle" value="Web Content Title" />
+		</execute>
+
+		<execute macro="WebContent#viewPGViaWCD">
+			<var name="webContentContent" value="Web Content Content" />
 		</execute>
 
 		<execute macro="Staging#gotoPublishToLive" />
@@ -1371,12 +1440,16 @@
 			<var name="webContentTitle" value="Web Content Title" />
 		</execute>
 
+		<execute macro="WebContent#viewPGViaWCD">
+			<var name="webContentContent" value="Web Content Content" />
+		</execute>
+
 		<execute macro="Staging#changeSitePageVariationPG">
 			<var name="sitePagesVariationMenulistName" value="Main Variation" />
 			<var name="sitePagesVariationName" value="Test Site Pages Variation" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="BasePortlet#TITLE" value1="Web Content Display" />
+		<execute function="AssertElementNotPresent" locator1="Portlet#TITLE" value1="Web Content Display" />
 
 		<execute macro="Staging#changeSitePageVariationPG">
 			<var name="sitePagesVariationMenulistName" value="Test Site Pages Variation" />
@@ -1420,7 +1493,7 @@
 			<var name="pageVariationNameMenulistName" value="Main Variation" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="BasePortlet#TITLE" value1="Blogs" />
+		<execute function="AssertElementNotPresent" locator1="Portlet#TITLE" value1="Blogs" />
 
 		<execute macro="Staging#changePageVariationPG">
 			<var name="pageVariationName" value="Main Variation" />

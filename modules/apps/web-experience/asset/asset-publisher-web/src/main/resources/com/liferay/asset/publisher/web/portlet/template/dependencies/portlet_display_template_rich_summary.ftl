@@ -11,20 +11,22 @@
 </#if>
 
 <#list entries as entry>
-	<#assign entry = entry />
+	<#assign
+		entry = entry
 
-	<#assign assetRenderer = entry.getAssetRenderer() />
+		assetRenderer = entry.getAssetRenderer()
 
-	<#assign entryTitle = htmlUtil.escape(assetRenderer.getTitle(locale)) />
+		entryTitle = htmlUtil.escape(assetRenderer.getTitle(locale))
 
-	<#assign viewURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, entry) />
+		viewURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, entry)
+	/>
 
 	<#if assetLinkBehavior != "showFullContent">
 		<#assign viewURL = assetPublisherHelper.getAssetViewURL(renderRequest, renderResponse, entry, true) />
 	</#if>
 
 	<div class="asset-abstract">
-		<div class="lfr-meta-actions asset-actions">
+		<div class="pull-right">
 			<@getPrintIcon />
 
 			<@getFlagsIcon />
@@ -62,7 +64,6 @@
 			<@getDiscussion />
 		</div>
 	</div>
-
 </#list>
 
 <#macro getDiscussion>
@@ -98,7 +99,9 @@
 			<#assign title = languageUtil.format(locale, "edit-x", entryTitle, false) />
 
 			<@liferay_ui["icon"]
-				iconCssClass="icon-edit-sign"
+				cssClass="icon-monospaced visible-interaction"
+				icon="pencil"
+				markupView="lexicon"
 				message=title
 				url="javascript:Liferay.Util.openWindow({id:'" + renderResponse.getNamespace() + "editAsset', title: '" + title + "', uri:'" + htmlUtil.escapeURL(editPortletURL.toString()) + "'});"
 			/>

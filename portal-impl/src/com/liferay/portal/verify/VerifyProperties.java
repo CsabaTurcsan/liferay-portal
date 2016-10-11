@@ -331,8 +331,8 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.portal.upload.UploadServletRequestImpl.temp.dir"
 		},
 		new String[] {
-			"com.liferay.util.servlet.fileupload.LiferayFileItem." +
-				"threshold.size",
+			"com.liferay.util.servlet.fileupload.LiferayFileItem.threshold." +
+				"size",
 			"com.liferay.portal.upload.LiferayFileItem.threshold.size"
 		},
 		new String[] {
@@ -1787,6 +1787,7 @@ public class VerifyProperties extends VerifyProcess {
 		"journal.article.form.add", "journal.article.form.default.values",
 		"journal.article.form.update", "journal.article.form.translate",
 		"journal.article.types", "journal.articles.page.delta.values",
+		"journal.browse.by.structures.sorted.by.name",
 		"journal.template.language.parser[css]",
 		"journal.template.language.parser[ftl]",
 		"journal.template.language.parser[vm]",
@@ -1814,14 +1815,17 @@ public class VerifyProperties extends VerifyProcess {
 		"lucene.store.jdbc.dialect.mysql", "lucene.store.jdbc.dialect.oracle",
 		"lucene.store.jdbc.dialect.postgresql", "mail.hook.cyrus.add.user",
 		"mail.hook.cyrus.delete.user", "mail.hook.cyrus.home",
+		"mail.hook.fusemail.account.type", "mail.hook.fusemail.group.parent",
+		"mail.hook.fusemail.password", "mail.hook.fusemail.url",
+		"mail.hook.fusemail.username",
 		"memory.cluster.scheduler.lock.cache.enabled",
 		"message.boards.email.message.added.signature",
 		"message.boards.email.message.updated.signature",
 		"message.boards.thread.locking.enabled",
 		"message.boards.thread.previous.and.next.navigation.enabled",
 		"message.boards.thread.views", "message.boards.thread.views.default",
-		"mobile.device.styling.wap.enabled", "msn.login", "msn.password",
-		"multicast.group.address[\"hibernate\"]",
+		"mobile.device.styling.wap.enabled", "module.framework.initial.bundles",
+		"msn.login", "msn.password", "multicast.group.address[\"hibernate\"]",
 		"multicast.group.port[\"hibernate\"]",
 		"net.sf.ehcache.configurationResourceName",
 		"net.sf.ehcache.configurationResourceName.peerProviderProperties",
@@ -1849,7 +1853,7 @@ public class VerifyProperties extends VerifyProcess {
 		"sites.form.update.advanced", "sites.form.update.main",
 		"sites.form.update.miscellaneous", "sites.form.update.seo",
 		"staging.lock.enabled", "social.activity.sets.bundling.enabled",
-		"table.mapper.cacheless.mapping.table.names", "tck.url",
+		"table.mapper.cache.mapping.table.names", "tck.url",
 		"user.groups.indexer.enabled", "users.form.add.identification",
 		"users.indexer.enabled", "users.form.add.main",
 		"users.form.add.miscellaneous", "users.form.my.account.identification",

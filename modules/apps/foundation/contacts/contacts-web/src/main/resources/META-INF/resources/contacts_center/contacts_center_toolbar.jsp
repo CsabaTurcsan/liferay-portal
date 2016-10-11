@@ -79,16 +79,16 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
+				cssClass: '<%= showAddAsConnectionButton ? "" : "hidden" %>',
+				icon: 'icon-plus-sign',
+				id: '<portlet:namespace />addConnectionButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "connect") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="requestSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_BI_CONNECTION) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-plus-sign',
-				id: '<portlet:namespace />addConnectionButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "connect") %>',
-				render: true,
-				visible: <%= showAddAsConnectionButton %>
+				render: true
 			}
 		)
 	);
@@ -96,16 +96,16 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
+				cssClass: '<%= showRemoveAsConnectionButton ? "" : "hidden" %>',
+				icon: 'icon-minus-sign',
+				id: '<portlet:namespace />removeConnectionButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "disconnect") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="deleteSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_BI_CONNECTION) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-minus-sign',
-				id: '<portlet:namespace />removeConnectionButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "disconnect") %>',
-				render: true,
-				visible: <%= showRemoveAsConnectionButton %>
+				render: true
 			}
 		)
 	);
@@ -113,17 +113,16 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
-				cssClass: 'more',
+				cssClass: 'more <%= showFollowButton ? "" : "hidden" %>',
+				icon: 'icon-plus-sign',
+				id: '<portlet:namespace />followButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "follow") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="addSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_UNI_FOLLOWER) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-plus-sign',
-				id: '<portlet:namespace />followButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "follow") %>',
-				render: true,
-				visible: <%= showFollowButton %>
+				render: true
 			}
 		)
 	);
@@ -131,17 +130,16 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
-				cssClass: 'more',
+				cssClass: 'more <%= showUnFollowButton ? "" : "hidden" %>',
+				icon: 'icon-minus-sign',
+				id: '<portlet:namespace />unfollowButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "unfollow") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="deleteSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_UNI_FOLLOWER) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-minus-sign',
-				id: '<portlet:namespace />unfollowButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "unfollow") %>',
-				render: true,
-				visible: <%= showUnFollowButton %>
+				render: true
 			}
 		)
 	);
@@ -149,17 +147,16 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
-				cssClass: 'more',
+				cssClass: 'more <%= showBlockButton ? "" : "hidden" %>',
+				icon: 'icon-ban-circle',
+				id: '<portlet:namespace />blockButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "block") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="addSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_UNI_ENEMY) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-ban-circle',
-				id: '<portlet:namespace />blockButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "block") %>',
-				render: true,
-				visible: <%= showBlockButton %>
+				render: true
 			}
 		)
 	);
@@ -167,26 +164,25 @@ if (user2 != null) {
 	contactsToolbarChildren.push(
 		new A.Button(
 			{
-				cssClass: 'more',
+				cssClass: 'more <%= showUnBlockButton ? "" : "hidden" %>',
+				icon: 'icon-ok',
+				id: '<portlet:namespace />unblockButton',
+				label: '<%= UnicodeLanguageUtil.get(request, "unblock") %>',
 				on: {
 					click: function(event) {
 						<portlet:namespace />relationAction(event, '<portlet:actionURL name="deleteSocialRelation" windowState="<%= LiferayWindowState.NORMAL.toString() %>"><portlet:param name="type" value="<%= String.valueOf(SocialRelationConstants.TYPE_UNI_ENEMY) %>" /></portlet:actionURL>');
 					}
 				},
-				icon: 'icon-ok',
-				id: '<portlet:namespace />unblockButton',
-				label: '<%= UnicodeLanguageUtil.get(request, "unblock") %>',
-				render: true,
-				visible: <%= showUnBlockButton %>
+				render: true
 			}
 		)
 	);
 
 	<%
-	ServletContext servletContext = ServletContextPool.get("private-messaging-portlet");
+	String privateMessagingPortletId = PortletProviderUtil.getPortletId("com.liferay.social.privatemessaging.model.UserThread", PortletProvider.Action.EDIT);
 	%>
 
-	<c:if test="<%= Validator.isNotNull(servletContext) && ((user2 == null) || (user2.getUserId() != themeDisplay.getUserId())) %>">
+	<c:if test="<%= Validator.isNotNull(privateMessagingPortletId) && ((user2 == null) || (user2.getUserId() != themeDisplay.getUserId())) %>">
 		contactsToolbarChildren.push(
 			{
 				icon: 'icon-envelope',
@@ -196,7 +192,7 @@ if (user2 != null) {
 					click: function(event) {
 						<portlet:renderURL var="redirectURL" windowState="<%= LiferayWindowState.NORMAL.toString() %>" />
 
-						var uri = '<liferay-portlet:renderURL portletName="<%= PrivateMessagingPortletKeys.PRIVATE_MESSAGING %>" windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/new_message.jsp" /><portlet:param name="redirect" value="<%= redirectURL %>" /></liferay-portlet:renderURL>';
+						var uri = '<liferay-portlet:renderURL portletName="<%= privateMessagingPortletId %>" windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="mvcPath" value="/new_message.jsp" /><portlet:param name="redirect" value="<%= redirectURL %>" /></liferay-portlet:renderURL>';
 
 						<c:choose>
 							<c:when test="<%= user2 != null %>">
@@ -207,7 +203,7 @@ if (user2 != null) {
 							</c:otherwise>
 						</c:choose>
 
-						uri = Liferay.Util.addParams('<%= PortalUtil.getPortletNamespace(PrivateMessagingPortletKeys.PRIVATE_MESSAGING) %>userIds=' + userIds.join(), uri) || uri;
+						uri = Liferay.Util.addParams('<%= PortalUtil.getPortletNamespace(privateMessagingPortletId) %>userIds=' + userIds.join(), uri) || uri;
 
 						Liferay.Util.openWindow(
 							{
@@ -221,7 +217,7 @@ if (user2 != null) {
 									plugins: [Liferay.WidgetZIndex],
 									width: 600
 								},
-								id: '<%= PortalUtil.getPortletNamespace(PrivateMessagingPortletKeys.PRIVATE_MESSAGING) %>Dialog',
+								id: '<%= PortalUtil.getPortletNamespace(privateMessagingPortletId) %>Dialog',
 								title: '<%= UnicodeLanguageUtil.get(request, "new-message") %>',
 								uri: uri
 							}

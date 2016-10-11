@@ -71,6 +71,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -143,7 +144,9 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		long threadId = 0;
 		long parentMessageId = MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID;
+
 		String subject = String.valueOf(classPK);
+
 		String body = subject;
 
 		ServiceContext serviceContext = new ServiceContext();
@@ -176,18 +179,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		validateDiscussionMaxComments(className, classPK);
 
 		long categoryId = MBCategoryConstants.DISCUSSION_CATEGORY_ID;
-
-		if (Validator.isNull(subject)) {
-			if (Validator.isNotNull(body)) {
-				int pos = Math.min(body.length(), 50);
-
-				subject = body.substring(0, pos) + "...";
-			}
-			else {
-				throw new MessageBodyException("Body is null");
-			}
-		}
-
+		subject = getDiscussionMessageSubject(subject, body);
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs =
 			Collections.emptyList();
 		boolean anonymous = false;
@@ -252,6 +244,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		subject = ModelHintsUtil.trimString(
 			MBMessage.class.getName(), "subject", subject);
 
+		if (!MBUtil.isValidMessageFormat(format)) {
+			format = "html";
+		}
+
 		MBGroupServiceSettings mbGroupServiceSettings =
 			MBGroupServiceSettings.getInstance(groupId);
 
@@ -272,6 +268,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 
 		long messageId = counterLocalService.increment();
 
+		subject = getSubject(subject, body);
+
+		body = getBody(subject, body);
+
 		Map<String, Object> options = new HashMap<>();
 
 		boolean discussion = false;
@@ -287,9 +287,6 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			messageId, "text/" + format, Sanitizer.MODE_ALL, body, options);
 
 		validate(subject, body);
-
-		subject = getSubject(subject, body);
-		body = getBody(subject, body);
 
 		MBMessage message = mbMessagePersistence.create(messageId);
 
@@ -1550,17 +1547,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			String subject, String body, ServiceContext serviceContext)
 		throws PortalException {
 
-		if (Validator.isNull(subject)) {
-			if (Validator.isNotNull(body)) {
-				int pos = Math.min(body.length(), 50);
-
-				subject = body.substring(0, pos) + "...";
-			}
-			else {
-				throw new MessageBodyException("Body is null");
-			}
-		}
-
+		subject = getDiscussionMessageSubject(subject, body);
 		List<ObjectValuePair<String, InputStream>> inputStreamOVPs = null;
 		List<String> existingFiles = null;
 		double priority = 0.0;
@@ -1605,6 +1592,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		subject = ModelHintsUtil.trimString(
 			MBMessage.class.getName(), "subject", subject);
 
+		subject = getSubject(subject, body);
+
+		body = getBody(subject, body);
+
 		Map<String, Object> options = new HashMap<>();
 
 		options.put("discussion", message.isDiscussion());
@@ -1615,9 +1606,6 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			Sanitizer.MODE_ALL, body, options);
 
 		validate(subject, body);
-
-		subject = getSubject(subject, body);
-		body = getBody(subject, body);
 
 		message.setModifiedDate(modifiedDate);
 		message.setSubject(subject);
@@ -1976,6 +1964,26 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		return body;
 	}
 
+	protected String getDiscussionMessageSubject(String subject, String body)
+		throws MessageBodyException {
+
+		if (Validator.isNotNull(subject)) {
+			return subject;
+		}
+
+		if (Validator.isNull(body)) {
+			throw new MessageBodyException("Body is null");
+		}
+
+		subject = HtmlUtil.extractText(body);
+
+		if (subject.length() <= 50) {
+			return subject;
+		}
+
+		return subject.substring(50) + StringPool.TRIPLE_PERIOD;
+	}
+
 	protected String getMessageURL(
 			MBMessage message, ServiceContext serviceContext)
 		throws PortalException {
@@ -2120,6 +2128,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 			mbDiscussionLocalService.getThreadDiscussion(message.getThreadId());
 
 		String contentURL = (String)serviceContext.getAttribute("contentURL");
+
+		contentURL = HttpUtil.addParameter(
+			contentURL, serviceContext.getAttribute("namespace") + "messageId",
+			message.getMessageId());
 
 		String userAddress = StringPool.BLANK;
 		String userName = (String)serviceContext.getAttribute(
@@ -2434,19 +2446,21 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		throws PortalException {
 
 		boolean visible = false;
+		Date publishDate = null;
 
 		if (assetEntryVisible && message.isApproved() &&
 			((message.getClassNameId() == 0) ||
 			 (message.getParentMessageId() != 0))) {
 
 			visible = true;
+			publishDate = message.getModifiedDate();
 		}
 
 		AssetEntry assetEntry = assetEntryLocalService.updateEntry(
 			userId, message.getGroupId(), message.getCreateDate(),
 			message.getModifiedDate(), message.getWorkflowClassName(),
 			message.getMessageId(), message.getUuid(), 0, assetCategoryIds,
-			assetTagNames, true, visible, null, null, null,
+			assetTagNames, true, visible, null, null, publishDate, null,
 			ContentTypes.TEXT_HTML, message.getSubject(), null, null, null,
 			null, 0, 0, message.getPriority());
 

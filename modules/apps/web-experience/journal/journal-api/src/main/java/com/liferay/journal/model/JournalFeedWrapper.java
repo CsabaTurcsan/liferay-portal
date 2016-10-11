@@ -231,6 +231,16 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	@Override
+	public JournalFeed toEscapedModel() {
+		return new JournalFeedWrapper(_journalFeed.toEscapedModel());
+	}
+
+	@Override
+	public JournalFeed toUnescapedModel() {
+		return new JournalFeedWrapper(_journalFeed.toUnescapedModel());
+	}
+
+	@Override
 	public boolean isCachedModel() {
 		return _journalFeed.isCachedModel();
 	}
@@ -251,17 +261,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	@Override
-	public com.liferay.journal.model.JournalFeed toEscapedModel() {
-		return new JournalFeedWrapper(_journalFeed.toEscapedModel());
-	}
-
-	@Override
-	public com.liferay.journal.model.JournalFeed toUnescapedModel() {
-		return new JournalFeedWrapper(_journalFeed.toUnescapedModel());
-	}
-
-	@Override
-	public com.liferay.portal.kernel.model.CacheModel<com.liferay.journal.model.JournalFeed> toCacheModel() {
+	public com.liferay.portal.kernel.model.CacheModel<JournalFeed> toCacheModel() {
 		return _journalFeed.toCacheModel();
 	}
 
@@ -276,7 +276,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	@Override
-	public int compareTo(com.liferay.journal.model.JournalFeed journalFeed) {
+	public int compareTo(JournalFeed journalFeed) {
 		return _journalFeed.compareTo(journalFeed);
 	}
 
@@ -406,7 +406,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getDDMRendererTemplateKey()}
+	* @deprecated As of 4.0.0, replaced by {@link #getDDMRendererTemplateKey()}
 	*/
 	@Deprecated
 	@Override
@@ -415,7 +415,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getDDMStructureKey()}
+	* @deprecated As of 4.0.0, replaced by {@link #getDDMStructureKey()}
 	*/
 	@Deprecated
 	@Override
@@ -444,7 +444,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #getDDMTemplateKey()}
+	* @deprecated As of 4.0.0, replaced by {@link #getDDMTemplateKey()}
 	*/
 	@Deprecated
 	@Override
@@ -800,7 +800,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
+	* @deprecated As of 4.0.0, replaced by {@link
 	#setDDMRendererTemplateKey(String)}
 	*/
 	@Deprecated
@@ -810,7 +810,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #setDDMStructureKey(String)}
+	* @deprecated As of 4.0.0, replaced by {@link #setDDMStructureKey(String)}
 	*/
 	@Deprecated
 	@Override
@@ -840,7 +840,7 @@ public class JournalFeedWrapper implements JournalFeed,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link #setDDMTemplateKey(String)}
+	* @deprecated As of 4.0.0, replaced by {@link #setDDMTemplateKey(String)}
 	*/
 	@Deprecated
 	@Override

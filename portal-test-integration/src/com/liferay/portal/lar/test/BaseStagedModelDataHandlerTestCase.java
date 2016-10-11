@@ -643,11 +643,12 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 			},
 			new String[] {assetTag.getName()}, assetEntry.isListable(),
 			assetEntry.isVisible(), assetEntry.getStartDate(),
-			assetEntry.getEndDate(), assetEntry.getExpirationDate(),
-			assetEntry.getMimeType(), assetEntry.getTitle(),
-			assetEntry.getDescription(), assetEntry.getSummary(),
-			assetEntry.getUrl(), assetEntry.getLayoutUuid(),
-			assetEntry.getHeight(), assetEntry.getWidth(), assetPriority);
+			assetEntry.getEndDate(), assetEntry.getPublishDate(),
+			assetEntry.getExpirationDate(), assetEntry.getMimeType(),
+			assetEntry.getTitle(), assetEntry.getDescription(),
+			assetEntry.getSummary(), assetEntry.getUrl(),
+			assetEntry.getLayoutUuid(), assetEntry.getHeight(),
+			assetEntry.getWidth(), assetPriority);
 
 		return new StagedModelAssets(
 			assetCategory, assetEntry, assetTag, assetVocabulary);
@@ -855,6 +856,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		validateAssets(importedStagedModel, stagedModelAssets, group);
 		validateComments(stagedModel, importedStagedModel, group);
+
 		validateImport(dependentStagedModelsMap, group);
 		validateImportedStagedModel(stagedModel, importedStagedModel);
 		validateRatings(stagedModel, importedStagedModel);

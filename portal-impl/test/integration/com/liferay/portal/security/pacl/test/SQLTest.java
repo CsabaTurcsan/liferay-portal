@@ -19,13 +19,16 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.test.rule.PACLTestRule;
+import com.liferay.portal.test.rule.PACLTestRule.PACLTestRuleThreadLocal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +42,16 @@ public class SQLTest {
 	@Rule
 	public static final PACLTestRule paclTestRule = new PACLTestRule();
 
+	@BeforeClass
+	public static void setUpClass() {
+		PACLTestRuleThreadLocal.setDummyDataSourceEnabled(true);
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		PACLTestRuleThreadLocal.setDummyDataSourceEnabled(false);
+	}
+
 	@Test
 	public void testCreate1() throws Exception {
 		try {
@@ -48,6 +61,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -60,6 +77,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -86,6 +107,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -97,6 +122,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -124,6 +153,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -136,6 +169,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -160,6 +197,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -171,6 +212,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -207,6 +252,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -223,6 +272,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -265,6 +318,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -278,6 +335,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -309,6 +370,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -320,6 +385,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -335,6 +404,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -350,6 +423,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -409,6 +486,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -422,6 +503,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -435,6 +520,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -447,6 +536,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -459,6 +552,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 
@@ -471,6 +568,10 @@ public class SQLTest {
 			Assert.fail();
 		}
 		catch (SecurityException se) {
+			String message = se.getMessage();
+
+			Assert.assertTrue(
+				message.startsWith("Attempted to execute unapproved SQL"));
 		}
 	}
 

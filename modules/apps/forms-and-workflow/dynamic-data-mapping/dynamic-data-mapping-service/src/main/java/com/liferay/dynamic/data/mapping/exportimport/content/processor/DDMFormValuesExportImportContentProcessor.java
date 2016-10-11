@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 
 import java.util.Locale;
@@ -49,17 +50,14 @@ import org.osgi.service.component.annotations.Reference;
  * @author Daniel Kocsis
  */
 @Component(
-	property = {"model.class.name=com.liferay.dynamic.data.mapping.storage.DDMFormValues"},
-	service = {
-		DDMFormValuesExportImportContentProcessor.class,
-		ExportImportContentProcessor.class
-	}
+	immediate = true, service = DDMFormValuesExportImportContentProcessor.class
 )
-public class DDMFormValuesExportImportContentProcessor
-	implements ExportImportContentProcessor<DDMFormValues> {
+public class DDMFormValuesExportImportContentProcessor<S extends StagedModel>
+	implements ExportImportContentProcessor<S, DDMFormValues> {
 
+	@Override
 	public DDMFormValues replaceExportContentReferences(
-			PortletDataContext portletDataContext, StagedModel stagedModel,
+			PortletDataContext portletDataContext, S stagedModel,
 			DDMFormValues ddmFormValues, boolean exportReferencedContent,
 			boolean escapeContent)
 		throws Exception {
@@ -79,8 +77,9 @@ public class DDMFormValuesExportImportContentProcessor
 		return ddmFormValues;
 	}
 
+	@Override
 	public DDMFormValues replaceImportContentReferences(
-			PortletDataContext portletDataContext, StagedModel stagedModel,
+			PortletDataContext portletDataContext, S stagedModel,
 			DDMFormValues ddmFormValues)
 		throws Exception {
 
@@ -99,9 +98,10 @@ public class DDMFormValuesExportImportContentProcessor
 	}
 
 	@Override
-	public void validateContentReferences(
-			long groupId, DDMFormValues ddmFormValues)
-		throws PortalException {
+	public boolean validateContentReferences(
+		long groupId, DDMFormValues ddmFormValues) {
+
+		return true;
 	}
 
 	@Reference(unbind = "-")
@@ -225,6 +225,10 @@ public class DDMFormValuesExportImportContentProcessor
 				long groupId = GetterUtil.getLong(jsonObject.get("groupId"));
 				String uuid = jsonObject.getString("uuid");
 
+				if ((groupId == 0) || Validator.isNull(uuid)) {
+					continue;
+				}
+
 				FileEntry fileEntry =
 					_dlAppService.getFileEntryByUuidAndGroupId(uuid, groupId);
 
@@ -302,19 +306,21 @@ public class DDMFormValuesExportImportContentProcessor
 
 			groupId = MapUtil.getLong(groupIds, groupId, groupId);
 
-			try {
-				return _dlAppService.getFileEntryByUuidAndGroupId(
-					uuid, groupId);
-			}
-			catch (NoSuchFileEntryException nsfee) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Unable to find file entry with uuid " + uuid +
-							" and groupId " + groupId);
+			if ((groupId > 0) && Validator.isNotNull(uuid)) {
+				try {
+					return _dlAppService.getFileEntryByUuidAndGroupId(
+						uuid, groupId);
 				}
-
-				return null;
+				catch (NoSuchFileEntryException nsfee) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to find file entry with uuid " + uuid +
+								" and groupId " + groupId);
+					}
+				}
 			}
+
+			return null;
 		}
 
 		protected String toJSON(FileEntry fileEntry, String type) {
