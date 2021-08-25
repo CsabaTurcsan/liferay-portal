@@ -90,6 +90,8 @@ public class StartupHelperUtil {
 		return true;
 	}
 
+
+	//TODO HERE
 	public static void printPatchLevel() {
 		if (_log.isInfoEnabled() && !PatcherUtil.hasInconsistentPatchLevels()) {
 			String installedPatches = StringUtil.merge(

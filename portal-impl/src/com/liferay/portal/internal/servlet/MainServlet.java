@@ -227,6 +227,8 @@ public class MainServlet extends HttpServlet {
 		_portalRequestProcessor = new PortalRequestProcessor(
 			servletContext, _init());
 
+
+		//TODO HERE
 		if (_log.isDebugEnabled()) {
 			_log.debug("Verify patch levels");
 		}
